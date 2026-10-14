@@ -1,0 +1,182 @@
+<div class="page container">
+  <div class="form-container">
+    <div class="form-header">
+      <div class="back-link">
+        <a routerLink="/admin" class="btn btn-secondary btn-sm">← Back to Dashboard</a>
+      </div>
+      <h1 class="page-title">Edit Movie</h1>
+      <p class="page-subtitle">Update movie details, synopsis, or media links</p>
+    </div>
+
+    @if (error) {
+      <div class="message message-error">{{ error }}</div>
+    }
+    @if (success) {
+      <div class="message message-success">{{ success }}</div>
+    }
+
+    @if (loading) {
+      <div class="loading-container">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading movie details...</p>
+      </div>
+    } @else {
+      <form [formGroup]="movieForm" (ngSubmit)="onSubmit()" class="movie-form">
+        <div class="form-grid">
+          <!-- Title -->
+          <div class="form-group full-width">
+            <label class="form-label" for="title">Movie Title *</label>
+            <input
+              id="title"
+              type="text"
+              formControlName="title"
+              class="form-control"
+              placeholder="e.g. Inception"
+            />
+            @if (movieForm.get('title')?.touched && movieForm.get('title')?.errors?.['required']) {
+              <span class="field-error">Title is required</span>
+            }
+          </div>
+
+          <!-- Director -->
+          <div class="form-group">
+            <label class="form-label" for="director">Director *</label>
+            <input
+              id="director"
+              type="text"
+              formControlName="director"
+              class="form-control"
+              placeholder="e.g. Christopher Nolan"
+            />
+            @if (movieForm.get('director')?.touched && movieForm.get('director')?.errors?.['required']) {
+              <span class="field-error">Director is required</span>
+            }
+          </div>
+
+          <!-- Release Year -->
+          <div class="form-group">
+            <label class="form-label" for="releaseYear">Release Year *</label>
+            <input
+              id="releaseYear"
+              type="number"
+              formControlName="releaseYear"
+              class="form-control"
+              placeholder="e.g. 2010"
+            />
+            @if (movieForm.get('releaseYear')?.touched && movieForm.get('releaseYear')?.invalid) {
+              <span class="field-error">Valid release year is required</span>
+            }
+          </div>
+
+          <!-- Duration (minutes) -->
+          <div class="form-group">
+            <label class="form-label" for="duration">Duration (minutes) *</label>
+            <input
+              id="duration"
+              type="number"
+              formControlName="duration"
+              class="form-control"
+              placeholder="e.g. 148"
+            />
+            @if (movieForm.get('duration')?.touched && movieForm.get('duration')?.invalid) {
+              <span class="field-error">Valid duration in minutes is required</span>
+            }
+          </div>
+
+          <!-- Cast -->
+          <div class="form-group">
+            <label class="form-label" for="cast">Cast (comma separated)</label>
+            <input
+              id="cast"
+              type="text"
+              formControlName="cast"
+              class="form-control"
+              placeholder="e.g. Leonardo DiCaprio, Joseph Gordon-Levitt, Elliot Page"
+            />
+          </div>
+
+          <!-- Genres -->
+          <div class="form-group full-width">
+            <label class="form-label">Genres * (Click to select)</label>
+            <div class="genre-selector">
+              @for (g of availableGenres; track g) {
+                <button
+                  type="button"
+                  class="genre-chip"
+                  [class.selected]="selectedGenres.includes(g)"
+                  (click)="toggleGenre(g)"
+                >
+                  {{ g }}
+                </button>
+              }
+            </div>
+            @if (selectedGenres.length === 0 && movieForm.touched) {
+              <span class="field-error">Please select at least one genre</span>
+            }
+          </div>
+
+          <!-- Poster URL -->
+          <div class="form-group">
+            <label class="form-label" for="poster">Poster Image URL *</label>
+            <input
+              id="poster"
+              type="url"
+              formControlName="poster"
+              class="form-control"
+              placeholder="https://images.unsplash.com/..."
+            />
+            @if (movieForm.get('poster')?.touched && movieForm.get('poster')?.invalid) {
+              <span class="field-error">Valid poster URL is required</span>
+            }
+          </div>
+
+          <!-- Backdrop URL -->
+          <div class="form-group">
+            <label class="form-label" for="backdrop">Backdrop Image URL (Optional)</label>
+            <input
+              id="backdrop"
+              type="url"
+              formControlName="backdrop"
+              class="form-control"
+              placeholder="https://images.unsplash.com/..."
+            />
+          </div>
+
+          <!-- Trailer URL -->
+          <div class="form-group full-width">
+            <label class="form-label" for="trailer">Trailer URL (YouTube embed or video URL)</label>
+            <input
+              id="trailer"
+              type="url"
+              formControlName="trailer"
+              class="form-control"
+              placeholder="https://www.youtube.com/watch?v=..."
+            />
+          </div>
+
+          <!-- Description -->
+          <div class="form-group full-width">
+            <label class="form-label" for="description">Synopsis / Description *</label>
+            <textarea
+              id="description"
+              formControlName="description"
+              rows="5"
+              class="form-control"
+              placeholder="Write a captivating summary of the movie..."
+            ></textarea>
+            @if (movieForm.get('description')?.touched && movieForm.get('description')?.invalid) {
+              <span class="field-error">Description must be at least 10 characters</span>
+            }
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary btn-lg" [disabled]="saving">
+            {{ saving ? 'Updating Movie...' : 'Save Changes' }}
+          </button>
+          <a routerLink="/admin" class="btn btn-secondary btn-lg">Cancel</a>
+        </div>
+      </form>
+    }
+  </div>
+</div>

@@ -1,0 +1,282 @@
+<div class="page container">
+  <div class="dashboard-header">
+    <div>
+      <h1 class="page-title">Admin Dashboard</h1>
+      <p class="page-subtitle">Manage movies, reviews, users, and catalog settings</p>
+    </div>
+    <a routerLink="/admin/add-movie" class="btn btn-primary">
+      <span>+</span> Add New Movie
+    </a>
+  </div>
+
+  @if (message) {
+    <div class="message" [class.message-success]="messageType === 'success'" [class.message-error]="messageType === 'error'">
+      {{ message }}
+    </div>
+  }
+
+  <!-- Stats Grid -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <span class="stat-icon">🎬</span>
+      <div>
+        <div class="stat-number">{{ stats.totalMovies || movies.length }}</div>
+        <div class="stat-label">Total Movies</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">👥</span>
+      <div>
+        <div class="stat-number">{{ stats.totalUsers || users.length || '—' }}</div>
+        <div class="stat-label">Total Users</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">💬</span>
+      <div>
+        <div class="stat-number">{{ stats.totalReviews || reviews.length || '—' }}</div>
+        <div class="stat-label">Total Reviews</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">⭐</span>
+      <div>
+        <div class="stat-number">{{ stats.averageRating ? (stats.averageRating | number:'1.1-1') : '—' }}</div>
+        <div class="stat-label">Avg Rating</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs Navigation -->
+  <div class="tabs-nav">
+    <button class="tab-btn" [class.active]="activeTab === 'movies'" (click)="switchTab('movies')">
+      🎬 Movies ({{ movies.length }})
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'reviews'" (click)="switchTab('reviews')">
+      💬 Reviews {{ reviews.length ? '(' + reviews.length + ')' : '' }}
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'users'" (click)="switchTab('users')">
+      👥 Users {{ users.length ? '(' + users.length + ')' : '' }}
+    </button>
+  </div>
+
+  <!-- MOVIES TAB -->
+  @if (activeTab === 'movies') {
+    <div class="tab-content">
+      <div class="table-actions-bar">
+        <input
+          type="text"
+          class="form-control table-search"
+          placeholder="Search by title, director, genre..."
+          [(ngModel)]="movieSearch"
+          (input)="filterMovies()"
+        />
+        <span class="count-badge">{{ filteredMovies.length }} movies found</span>
+      </div>
+
+      @if (loadingMovies) {
+        <div class="loading-container"><div class="spinner"></div><p class="loading-text">Loading movies...</p></div>
+      } @else if (filteredMovies.length === 0) {
+        <div class="empty-state">
+          <p>No movies match your search.</p>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Movie</th>
+                <th>Director</th>
+                <th>Year</th>
+                <th>Genres</th>
+                <th>Rating</th>
+                <th>Reviews</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (m of filteredMovies; track m._id) {
+                <tr>
+                  <td>
+                    <div class="movie-cell">
+                      <img [src]="m.poster" [alt]="m.title" class="table-poster" />
+                      <div>
+                        <a [routerLink]="['/movies', m._id]" class="table-title">{{ m.title }}</a>
+                        @if (m.duration) {
+                          <span class="table-duration">{{ m.duration }} mins</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ m.director }}</td>
+                  <td>{{ m.releaseYear }}</td>
+                  <td>
+                    <div class="genre-pill-group">
+                      @for (g of m.genre; track g) {
+                        <span class="genre-badge">{{ g }}</span>
+                      }
+                    </div>
+                  </td>
+                  <td>
+                    <span class="rating-badge">★ {{ m.averageRating | number:'1.1-1' }}</span>
+                  </td>
+                  <td>{{ m.reviewCount ?? 0 }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      <a [routerLink]="['/admin/edit-movie', m._id]" class="btn btn-secondary btn-sm">Edit</a>
+                      <button (click)="deleteMovie(m._id, m.title)" class="btn btn-danger btn-sm">Delete</button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- REVIEWS TAB -->
+  @if (activeTab === 'reviews') {
+    <div class="tab-content">
+      <div class="table-actions-bar">
+        <input
+          type="text"
+          class="form-control table-search"
+          placeholder="Search by movie, user, or review text..."
+          [(ngModel)]="reviewSearch"
+          (input)="filterReviews()"
+        />
+        <span class="count-badge">{{ filteredReviews.length }} reviews</span>
+      </div>
+
+      @if (loadingReviews) {
+        <div class="loading-container"><div class="spinner"></div><p class="loading-text">Loading reviews...</p></div>
+      } @else if (filteredReviews.length === 0) {
+        <div class="empty-state">
+          <p>No reviews found.</p>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Movie</th>
+                <th>User</th>
+                <th>Rating</th>
+                <th>Comment</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rev of filteredReviews; track rev._id) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['/movies', rev.movieId?._id || rev.movieId]" class="table-title">
+                      {{ rev.movieId?.title || 'Movie' }}
+                    </a>
+                  </td>
+                  <td>
+                    <div class="user-meta">
+                      <strong>{{ rev.userId?.name || 'User' }}</strong>
+                      <span class="user-email">{{ rev.userId?.email }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="rating-badge">★ {{ rev.rating }}/5</span>
+                  </td>
+                  <td class="comment-cell">
+                    <p class="comment-preview">{{ rev.comment }}</p>
+                  </td>
+                  <td>{{ rev.createdAt | date:'shortDate' }}</td>
+                  <td>
+                    <button (click)="deleteReview(rev._id)" class="btn btn-danger btn-sm">Delete</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- USERS TAB -->
+  @if (activeTab === 'users') {
+    <div class="tab-content">
+      <div class="table-actions-bar">
+        <input
+          type="text"
+          class="form-control table-search"
+          placeholder="Search users by name, email, role..."
+          [(ngModel)]="userSearch"
+          (input)="filterUsers()"
+        />
+        <span class="count-badge">{{ filteredUsers.length }} users</span>
+      </div>
+
+      @if (loadingUsers) {
+        <div class="loading-container"><div class="spinner"></div><p class="loading-text">Loading users...</p></div>
+      } @else if (filteredUsers.length === 0) {
+        <div class="empty-state">
+          <p>No users found.</p>
+        </div>
+      } @else {
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Joined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (u of filteredUsers; track u._id) {
+                <tr>
+                  <td>
+                    <div class="user-cell">
+                      <span class="user-avatar-circle">{{ u.name.charAt(0).toUpperCase() }}</span>
+                      <div>
+                        <strong>{{ u.name }}</strong>
+                        @if (u._id === authService.currentUser?._id) {
+                          <span class="self-tag">(You)</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ u.email }}</td>
+                  <td>
+                    <span class="role-badge" [class.role-admin]="u.role === 'admin'" [class.role-user]="u.role === 'user'">
+                      {{ u.role | uppercase }}
+                    </span>
+                  </td>
+                  <td>{{ u.createdAt | date:'mediumDate' }}</td>
+                  <td>
+                    <div class="action-buttons">
+                      @if (u._id !== authService.currentUser?._id) {
+                        <button
+                          (click)="toggleUserRole(u)"
+                          class="btn btn-secondary btn-sm"
+                          [title]="u.role === 'admin' ? 'Demote to regular user' : 'Promote to Admin'"
+                        >
+                          {{ u.role === 'admin' ? 'Make User' : 'Make Admin' }}
+                        </button>
+                        <button (click)="deleteUser(u)" class="btn btn-danger btn-sm">Delete</button>
+                      } @else {
+                        <span class="text-muted">Active Session</span>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+  }
+</div>

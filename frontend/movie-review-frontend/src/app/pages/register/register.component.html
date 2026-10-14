@@ -1,0 +1,51 @@
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">Create Account</h1>
+      <p class="auth-subtitle">Join the CineVault community</p>
+    </div>
+
+    @if (error) {
+      <div class="message message-error">{{ error }}</div>
+    }
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <div class="form-group">
+        <label class="form-label">Name</label>
+        <input type="text" class="form-input" formControlName="name" placeholder="Your name" />
+        @if (registerForm.get('name')?.touched && registerForm.get('name')?.errors) {
+          <span class="form-error">Name must be at least 2 characters</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" formControlName="email" placeholder="your@email.com" />
+        @if (registerForm.get('email')?.touched && registerForm.get('email')?.errors) {
+          <span class="form-error">Please enter a valid email</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" formControlName="password" placeholder="Min 6 characters" />
+        @if (registerForm.get('password')?.touched && registerForm.get('password')?.errors) {
+          <span class="form-error">Password must be at least 6 characters</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" class="form-input" formControlName="confirmPassword" placeholder="Repeat password" />
+      </div>
+
+      <button type="submit" class="btn btn-primary auth-btn" [disabled]="registerForm.invalid || loading">
+        {{ loading ? 'Creating account...' : 'Create Account' }}
+      </button>
+    </form>
+
+    <p class="auth-footer">
+      Already have an account? <a routerLink="/login">Sign In</a>
+    </p>
+  </div>
+</div>

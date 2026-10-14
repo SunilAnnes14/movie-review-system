@@ -1,0 +1,63 @@
+<div class="page container">
+  @if (loading) {
+    <div class="loading-container"><div class="spinner"></div><p class="loading-text">Loading profile...</p></div>
+  } @else if (user) {
+    @if (message) {
+      <div class="message" [class.message-success]="messageType === 'success'" [class.message-error]="messageType === 'error'">{{ message }}</div>
+    }
+
+    <div class="profile-header">
+      <div class="profile-avatar-large">{{ user.name.charAt(0).toUpperCase() }}</div>
+      <div class="profile-info">
+        @if (editing) {
+          <div class="edit-form">
+            <input type="text" class="form-input" [(ngModel)]="editName" placeholder="Name" />
+            <input type="email" class="form-input" [(ngModel)]="editEmail" placeholder="Email" />
+            <div class="edit-actions">
+              <button class="btn btn-primary btn-sm" (click)="saveProfile()">Save</button>
+              <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">Cancel</button>
+            </div>
+          </div>
+        } @else {
+          <h1 class="profile-name">{{ user.name }}</h1>
+          <p class="profile-email">{{ user.email }}</p>
+          <p class="profile-joined">Member since {{ formatDate(user.createdAt) }}</p>
+          @if (user.role === 'admin') {
+            <span class="badge badge-accent">Admin</span>
+          }
+          <button class="btn btn-outline btn-sm" style="margin-top: 12px" (click)="startEdit()">Edit Profile</button>
+        }
+      </div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="stat-card">
+        <span class="stat-number">{{ user.reviewCount || 0 }}</span>
+        <span class="stat-label">Reviews</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ user.watchlistCount || 0 }}</span>
+        <span class="stat-label">Watchlist</span>
+      </div>
+    </div>
+
+    @if (recentReviews.length > 0) {
+      <div class="profile-section">
+        <div class="section-header">
+          <h2 class="section-title">Recent Reviews</h2>
+          <a routerLink="/my-reviews" class="section-link">View All →</a>
+        </div>
+        @for (review of recentReviews; track review._id) {
+          <div class="review-item">
+            <div class="review-item-header">
+              <a [routerLink]="['/movies', review.movieId?._id]" class="review-movie-title">{{ review.movieId?.title || 'Movie' }}</a>
+              <span class="review-rating-sm">★ {{ review.rating }}/5</span>
+            </div>
+            <p class="review-comment-sm">{{ review.comment }}</p>
+            <span class="review-date-sm">{{ formatDate(review.createdAt) }}</span>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

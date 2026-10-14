@@ -1,0 +1,113 @@
+<div class="page container">
+  <div class="page-header">
+    <h1 class="page-title">Discover Movies</h1>
+    <p class="page-subtitle">Browse, search, and explore our movie collection</p>
+  </div>
+
+  @if (message) {
+    <div class="message message-info">{{ message }}</div>
+  }
+
+  <!-- FILTERS -->
+  <div class="filters-bar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search movies, directors..."
+        [(ngModel)]="searchQuery"
+        (keyup.enter)="onSearch()"
+      />
+    </div>
+
+    <div class="filter-group">
+      <select class="filter-select" [(ngModel)]="selectedGenre" (change)="onFilterChange()">
+        <option value="">All Genres</option>
+        @for (genre of genres; track genre) {
+          <option [value]="genre">{{ genre }}</option>
+        }
+      </select>
+
+      <select class="filter-select" [(ngModel)]="selectedSort" (change)="onFilterChange()">
+        <option value="">Sort: Latest</option>
+        <option value="oldest">Oldest</option>
+        <option value="rating">Highest Rated</option>
+        <option value="reviews">Most Reviewed</option>
+        <option value="title">Title A-Z</option>
+      </select>
+
+      <select class="filter-select" [(ngModel)]="selectedRating" (change)="onFilterChange()">
+        <option value="">Min Rating</option>
+        <option value="4">★ 4+</option>
+        <option value="3">★ 3+</option>
+        <option value="2">★ 2+</option>
+        <option value="1">★ 1+</option>
+      </select>
+
+      @if (hasActiveFilters) {
+        <button class="btn-clear" (click)="clearFilters()">✕ Clear</button>
+      }
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  @if (loading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading movies...</p>
+    </div>
+  } @else if (movies.length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon">🎬</span>
+      <h3 class="empty-title">No movies found</h3>
+      <p class="empty-text">Try adjusting your search or filters to find what you're looking for.</p>
+      @if (hasActiveFilters) {
+        <button class="btn btn-secondary" (click)="clearFilters()">Clear Filters</button>
+      }
+    </div>
+  } @else {
+    <!-- MOVIE GRID -->
+    <div class="movie-grid">
+      @for (movie of movies; track movie._id) {
+        <a [routerLink]="['/movies', movie._id]" class="movie-card">
+          <div class="movie-card-poster-wrap">
+            <img [src]="getPosterUrl(movie)" [alt]="movie.title" class="movie-card-poster" loading="lazy" />
+            <div class="movie-card-overlay">
+              <span class="movie-card-play">▶</span>
+            </div>
+            <button class="watchlist-btn" (click)="addToWatchlist(movie._id, $event)" title="Add to Watchlist">
+              +
+            </button>
+          </div>
+          <div class="movie-card-info">
+            <h3 class="movie-card-title">{{ movie.title }}</h3>
+            <div class="movie-card-meta">
+              <span>{{ movie.releaseYear }}</span>
+              <span>·</span>
+              <span class="movie-card-rating"><span class="star">★</span> {{ getStarDisplay(movie.averageRating) }}</span>
+              <span>·</span>
+              <span>{{ movie.reviewCount }} reviews</span>
+            </div>
+            <div class="movie-card-genres">
+              @for (g of movie.genre.slice(0, 2); track g) {
+                <span class="movie-card-genre">{{ g }}</span>
+              }
+            </div>
+          </div>
+        </a>
+      }
+    </div>
+
+    <!-- PAGINATION -->
+    @if (totalPages > 1) {
+      <div class="pagination">
+        <button class="page-btn" (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">←</button>
+        @for (p of pageNumbers; track p) {
+          <button class="page-btn" [class.active]="p === currentPage" (click)="goToPage(p)">{{ p }}</button>
+        }
+        <button class="page-btn" (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">→</button>
+      </div>
+    }
+  }
+</div>

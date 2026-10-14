@@ -1,0 +1,151 @@
+@if (loading) {
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p class="loading-text">Loading CineVault...</p>
+  </div>
+} @else {
+  <!-- HERO SECTION -->
+  @if (featuredMovie) {
+    <section class="hero">
+      <div class="hero-backdrop" [style.background-image]="'url(' + getPosterUrl(featuredMovie) + ')'"></div>
+      <div class="hero-overlay"></div>
+      <div class="hero-content container">
+        <div class="hero-info">
+          <span class="hero-badge">⭐ Featured Film</span>
+          <h1 class="hero-title">{{ featuredMovie.title }}</h1>
+          <div class="hero-meta">
+            <span class="hero-year">{{ featuredMovie.releaseYear }}</span>
+            <span class="hero-dot">·</span>
+            <span class="hero-genre">{{ featuredMovie.genre.join(', ') }}</span>
+            <span class="hero-dot">·</span>
+            <span class="hero-director">Dir. {{ featuredMovie.director }}</span>
+          </div>
+          <div class="hero-rating">
+            @for (s of getStars(featuredMovie.averageRating); track $index) {
+              @if (s === 'full') { <span class="star-filled">★</span> }
+              @else if (s === 'half') { <span class="star-half">★</span> }
+              @else { <span class="star-unfilled">★</span> }
+            }
+            <span class="rating-value">{{ featuredMovie.averageRating.toFixed(1) }}</span>
+            <span class="rating-count">({{ featuredMovie.reviewCount }} reviews)</span>
+          </div>
+          <p class="hero-description">{{ featuredMovie.description }}</p>
+          <div class="hero-actions">
+            <a [routerLink]="['/movies', featuredMovie._id]" class="btn btn-primary btn-lg">
+              ▶ View Movie
+            </a>
+            <a routerLink="/movies" class="btn btn-secondary btn-lg">
+              Explore Movies
+            </a>
+          </div>
+        </div>
+        <div class="hero-poster-wrapper">
+          <img [src]="getPosterUrl(featuredMovie)" [alt]="featuredMovie.title" class="hero-poster" />
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- TRENDING MOVIES -->
+  @if (trendingMovies.length > 0) {
+    <section class="section container">
+      <div class="section-header">
+        <h2 class="section-title">Trending Movies</h2>
+        <a routerLink="/movies" class="section-link">View All →</a>
+      </div>
+      <div class="movie-scroll">
+        @for (movie of trendingMovies; track movie._id) {
+          <a [routerLink]="['/movies', movie._id]" class="movie-card">
+            <div class="movie-card-poster-wrap">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" class="movie-card-poster" loading="lazy" />
+              <div class="movie-card-overlay">
+                <span class="movie-card-play">▶</span>
+              </div>
+            </div>
+            <div class="movie-card-info">
+              <h3 class="movie-card-title">{{ movie.title }}</h3>
+              <div class="movie-card-meta">
+                <span>{{ movie.releaseYear }}</span>
+                <span>·</span>
+                <span class="movie-card-rating"><span class="star">★</span> {{ movie.averageRating.toFixed(1) }}</span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- TOP RATED -->
+  @if (topRatedMovies.length > 0) {
+    <section class="section container">
+      <div class="section-header">
+        <h2 class="section-title">Top Rated</h2>
+        <a routerLink="/movies" [queryParams]="{sort: 'rating'}" class="section-link">View All →</a>
+      </div>
+      <div class="movie-scroll">
+        @for (movie of topRatedMovies; track movie._id) {
+          <a [routerLink]="['/movies', movie._id]" class="movie-card">
+            <div class="movie-card-poster-wrap">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" class="movie-card-poster" loading="lazy" />
+              <div class="movie-card-overlay">
+                <span class="movie-card-play">▶</span>
+              </div>
+            </div>
+            <div class="movie-card-info">
+              <h3 class="movie-card-title">{{ movie.title }}</h3>
+              <div class="movie-card-meta">
+                <span>{{ movie.releaseYear }}</span>
+                <span>·</span>
+                <span class="movie-card-rating"><span class="star">★</span> {{ movie.averageRating.toFixed(1) }}</span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- RECENTLY ADDED -->
+  @if (recentMovies.length > 0) {
+    <section class="section container">
+      <div class="section-header">
+        <h2 class="section-title">Recently Added</h2>
+        <a routerLink="/movies" class="section-link">View All →</a>
+      </div>
+      <div class="movie-scroll">
+        @for (movie of recentMovies; track movie._id) {
+          <a [routerLink]="['/movies', movie._id]" class="movie-card">
+            <div class="movie-card-poster-wrap">
+              <img [src]="getPosterUrl(movie)" [alt]="movie.title" class="movie-card-poster" loading="lazy" />
+              <div class="movie-card-overlay">
+                <span class="movie-card-play">▶</span>
+              </div>
+            </div>
+            <div class="movie-card-info">
+              <h3 class="movie-card-title">{{ movie.title }}</h3>
+              <div class="movie-card-meta">
+                <span>{{ movie.releaseYear }}</span>
+                <span>·</span>
+                <span class="movie-card-rating"><span class="star">★</span> {{ movie.averageRating.toFixed(1) }}</span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+    </section>
+  }
+
+  <!-- BROWSE BY GENRE -->
+  <section class="section container">
+    <h2 class="section-title">Browse by Genre</h2>
+    <div class="genre-grid">
+      @for (genre of genres; track genre.name) {
+        <a [routerLink]="['/movies']" [queryParams]="{genre: genre.name}" class="genre-card" [style.--genre-color]="genre.color">
+          <span class="genre-icon">{{ genre.icon }}</span>
+          <span class="genre-name">{{ genre.name }}</span>
+        </a>
+      }
+    </div>
+  </section>
+}

@@ -1,0 +1,42 @@
+<div class="page container">
+  <div class="page-header">
+    <h1 class="page-title">My Watchlist</h1>
+    <p class="page-subtitle">Movies you've saved to watch later</p>
+  </div>
+
+  @if (message) {
+    <div class="message message-info">{{ message }}</div>
+  }
+
+  @if (loading) {
+    <div class="loading-container"><div class="spinner"></div><p class="loading-text">Loading watchlist...</p></div>
+  } @else if (watchlist.length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon">🎬</span>
+      <h3 class="empty-title">Your watchlist is empty</h3>
+      <p class="empty-text">Browse movies and add them to your watchlist to keep track of what to watch next.</p>
+      <a routerLink="/movies" class="btn btn-primary">Browse Movies</a>
+    </div>
+  } @else {
+    <div class="movie-grid">
+      @for (item of watchlist; track item._id) {
+        <div class="movie-card">
+          <a [routerLink]="['/movies', item.movieId?._id]">
+            <div class="movie-card-poster-wrap">
+              <img [src]="getPosterUrl(item.movieId)" [alt]="item.movieId?.title" class="movie-card-poster" loading="lazy" />
+            </div>
+          </a>
+          <div class="movie-card-info">
+            <h3 class="movie-card-title">{{ item.movieId?.title }}</h3>
+            <div class="movie-card-meta">
+              <span>{{ item.movieId?.releaseYear }}</span>
+              <span>·</span>
+              <span class="movie-card-rating"><span class="star">★</span> {{ (item.movieId?.averageRating || 0).toFixed(1) }}</span>
+            </div>
+            <button class="btn btn-danger btn-sm remove-btn" (click)="removeFromWatchlist(item.movieId?._id)">Remove</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

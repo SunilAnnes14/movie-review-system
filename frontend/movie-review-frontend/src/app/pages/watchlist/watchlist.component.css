@@ -1,0 +1,10 @@
+.movie-card-poster-wrap {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.remove-btn {
+  margin-top: 8px;
+  width: 100%;
+}

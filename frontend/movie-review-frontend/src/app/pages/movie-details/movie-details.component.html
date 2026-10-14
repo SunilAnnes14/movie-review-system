@@ -1,0 +1,212 @@
+@if (loading) {
+  <div class="loading-container">
+    <div class="spinner"></div>
+    <p class="loading-text">Loading movie...</p>
+  </div>
+} @else if (movie) {
+  <!-- HERO BACKDROP -->
+  <div class="detail-hero">
+    <div class="detail-backdrop" [style.background-image]="'url(' + getBackdropUrl() + ')'"></div>
+    <div class="detail-overlay"></div>
+
+    <div class="detail-content container">
+      <div class="detail-poster-wrap">
+        <img [src]="getPosterUrl()" [alt]="movie.title" class="detail-poster" />
+      </div>
+
+      <div class="detail-info">
+        <h1 class="detail-title">{{ movie.title }}</h1>
+
+        <div class="detail-meta">
+          <span class="meta-item">📅 {{ movie.releaseYear }}</span>
+          <span class="meta-divider">·</span>
+          <span class="meta-item">⏱ {{ formatDuration(movie.duration) }}</span>
+          <span class="meta-divider">·</span>
+          <span class="meta-item">🎬 {{ movie.director }}</span>
+        </div>
+
+        <div class="detail-genres">
+          @for (g of movie.genre; track g) {
+            <span class="genre-tag">{{ g }}</span>
+          }
+        </div>
+
+        <div class="detail-rating-block">
+          <div class="rating-stars-large">
+            @for (s of getStars(movie.averageRating); track $index) {
+              @if (s === 'full') { <span class="star-l star-filled-l">★</span> }
+              @else if (s === 'half') { <span class="star-l star-half-l">★</span> }
+              @else { <span class="star-l star-empty-l">★</span> }
+            }
+          </div>
+          <span class="rating-number">{{ movie.averageRating.toFixed(1) }}</span>
+          <span class="rating-of">/5</span>
+          <span class="rating-reviews">({{ movie.reviewCount }} reviews)</span>
+        </div>
+
+        <p class="detail-description">{{ movie.description }}</p>
+
+        @if (movie.cast && movie.cast.length > 0) {
+          <div class="detail-cast">
+            <h3 class="cast-label">Cast</h3>
+            <div class="cast-list">
+              @for (actor of movie.cast; track actor) {
+                <span class="cast-item">{{ actor }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="detail-actions">
+          @if (movie.trailer) {
+            <button class="btn btn-primary" (click)="openTrailer()">
+              ▶ Watch Trailer
+            </button>
+          }
+          @if (authService.isLoggedIn) {
+            <button class="btn" [class.btn-primary]="!movie.trailer && !inWatchlist" [class.btn-secondary]="movie.trailer || inWatchlist" (click)="toggleWatchlist()">
+              {{ inWatchlist ? '✓ In Watchlist' : '+ Add to Watchlist' }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @if (message) {
+    <div class="container">
+      <div class="message" [class.message-success]="messageType === 'success'" [class.message-error]="messageType === 'error'">
+        {{ message }}
+      </div>
+    </div>
+  }
+
+  <!-- REVIEW SECTION -->
+  <div class="reviews-section container">
+    <!-- WRITE REVIEW -->
+    @if (authService.isLoggedIn && !hasReviewed) {
+      <div class="review-form-card">
+        <h2 class="review-form-title">Write a Review</h2>
+        <div class="rating-select">
+          <span class="rating-label">Your Rating:</span>
+          <div class="rating-stars-interactive">
+            @for (i of [1,2,3,4,5]; track i) {
+              <span
+                class="star-interactive"
+                [class.active]="i <= (hoverRating || reviewRating)"
+                (mouseenter)="hoverRating = i"
+                (mouseleave)="hoverRating = 0"
+                (click)="setRating(i)"
+              >★</span>
+            }
+          </div>
+          @if (reviewRating > 0) {
+            <span class="selected-rating">{{ reviewRating }}/5</span>
+          }
+        </div>
+        <textarea
+          class="form-textarea"
+          placeholder="Share your thoughts about this movie..."
+          [(ngModel)]="reviewComment"
+          rows="4"
+        ></textarea>
+        <button
+          class="btn btn-primary"
+          (click)="submitReview()"
+          [disabled]="submitting || reviewRating === 0 || !reviewComment.trim()"
+        >
+          {{ submitting ? 'Submitting...' : 'Submit Review' }}
+        </button>
+      </div>
+    } @else if (!authService.isLoggedIn) {
+      <div class="login-prompt">
+        <p><a routerLink="/login">Sign in</a> to write a review</p>
+      </div>
+    }
+
+    <!-- REVIEWS LIST -->
+    <div class="reviews-list">
+      <h2 class="section-title">User Reviews ({{ reviews.length }})</h2>
+
+      @if (reviews.length === 0) {
+        <div class="empty-state">
+          <span class="empty-icon">💬</span>
+          <h3 class="empty-title">No reviews yet</h3>
+          <p class="empty-text">Be the first to review this movie!</p>
+        </div>
+      } @else {
+        @for (review of reviews; track review._id) {
+          <div class="review-card" [class.editing]="editingReviewId === review._id">
+            @if (editingReviewId === review._id) {
+              <!-- EDITING MODE -->
+              <div class="review-edit-form">
+                <div class="rating-stars-interactive">
+                  @for (i of [1,2,3,4,5]; track i) {
+                    <span
+                      class="star-interactive"
+                      [class.active]="i <= (editHoverRating || editRating)"
+                      (mouseenter)="editHoverRating = i"
+                      (mouseleave)="editHoverRating = 0"
+                      (click)="editRating = i"
+                    >★</span>
+                  }
+                </div>
+                <textarea class="form-textarea" [(ngModel)]="editComment" rows="3"></textarea>
+                <div class="edit-actions">
+                  <button class="btn btn-primary btn-sm" (click)="saveEdit(review._id)">Save</button>
+                  <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">Cancel</button>
+                </div>
+              </div>
+            } @else {
+              <!-- VIEW MODE -->
+              <div class="review-header">
+                <div class="review-user">
+                  <div class="review-avatar">{{ (review.userId?.name || 'U').charAt(0).toUpperCase() }}</div>
+                  <div>
+                    <span class="review-username">{{ review.userId?.name || 'User' }}</span>
+                    <span class="review-date">{{ formatDate(review.createdAt) }}</span>
+                  </div>
+                </div>
+                <div class="review-rating-badge">
+                  <span class="star">★</span> {{ review.rating }}/5
+                </div>
+              </div>
+              <p class="review-comment">{{ review.comment }}</p>
+              @if (isReviewOwner(review) || canDeleteReview(review)) {
+                <div class="review-actions">
+                  @if (isReviewOwner(review)) {
+                    <button class="btn btn-outline btn-sm" (click)="startEdit(review)">Edit</button>
+                  }
+                  @if (canDeleteReview(review)) {
+                    <button class="btn btn-danger btn-sm" (click)="deleteReview(review._id)">Delete</button>
+                  }
+                </div>
+              }
+            }
+          </div>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- TRAILER MODAL -->
+  @if (showTrailerModal && safeTrailerUrl) {
+    <div class="trailer-modal-backdrop" (click)="closeTrailer()">
+      <div class="trailer-modal-dialog" (click)="$event.stopPropagation()">
+        <div class="trailer-modal-header">
+          <h3 class="trailer-modal-title">🎬 {{ movie.title }} — Official Trailer</h3>
+          <button class="trailer-modal-close" (click)="closeTrailer()">✕</button>
+        </div>
+        <div class="trailer-video-wrapper">
+          <iframe
+            [src]="safeTrailerUrl"
+            title="Movie Trailer"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  }
+}

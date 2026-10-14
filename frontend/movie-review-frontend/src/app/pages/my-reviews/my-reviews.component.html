@@ -1,0 +1,101 @@
+<div class="page container">
+  <div class="page-header">
+    <h1 class="page-title">My Reviews</h1>
+    <p class="page-subtitle">Manage and edit your movie ratings and reviews</p>
+  </div>
+
+  @if (message) {
+    <div class="message" [class.message-success]="messageType === 'success'" [class.message-error]="messageType === 'error'">
+      {{ message }}
+    </div>
+  }
+
+  @if (loading) {
+    <div class="loading-container">
+      <div class="spinner"></div>
+      <p class="loading-text">Loading reviews...</p>
+    </div>
+  } @else if (reviews.length === 0) {
+    <div class="empty-state">
+      <div class="empty-icon">✍️</div>
+      <h3>No reviews written yet</h3>
+      <p>Share your thoughts with the community by writing reviews on movie pages.</p>
+      <a routerLink="/movies" class="btn btn-primary" style="margin-top: 16px;">Browse Movies</a>
+    </div>
+  } @else {
+    <div class="reviews-list">
+      @for (review of reviews; track review._id) {
+        <div class="review-item-card">
+          <!-- Movie preview banner / thumb -->
+          <div class="review-movie-info">
+            <img [src]="review.movieId?.poster || 'assets/default-poster.jpg'" [alt]="review.movieId?.title" class="review-movie-thumb" />
+            <div class="review-movie-meta">
+              <a [routerLink]="['/movies', review.movieId?._id || review.movieId]" class="review-movie-title">
+                {{ review.movieId?.title || 'Unknown Movie' }}
+              </a>
+              <div class="review-movie-sub">
+                <span>{{ review.movieId?.releaseYear }}</span>
+                <span>•</span>
+                <span>{{ review.movieId?.genre?.join(', ') }}</span>
+              </div>
+            </div>
+            
+            <div class="review-actions">
+              @if (editingReviewId !== review._id) {
+                <button (click)="startEdit(review)" class="btn btn-secondary btn-sm">Edit</button>
+                <button (click)="deleteReview(review._id)" class="btn btn-danger btn-sm">Delete</button>
+              }
+            </div>
+          </div>
+
+          <!-- Normal display or edit form -->
+          @if (editingReviewId === review._id) {
+            <div class="edit-box">
+              <div class="rating-select-wrap">
+                <span class="edit-label">Rating:</span>
+                <div class="stars-interactive">
+                  @for (star of [1, 2, 3, 4, 5]; track star) {
+                    <button
+                      type="button"
+                      class="star-btn"
+                      [class.active]="star <= (hoverRating || editRating)"
+                      (mouseenter)="setHoverRating(star)"
+                      (mouseleave)="setHoverRating(0)"
+                      (click)="editRating = star"
+                    >★</button>
+                  }
+                  <span class="rating-number">{{ hoverRating || editRating }}/5</span>
+                </div>
+              </div>
+
+              <textarea
+                class="form-control edit-textarea"
+                [(ngModel)]="editComment"
+                rows="4"
+                placeholder="Update your review..."
+              ></textarea>
+
+              <div class="edit-btn-row">
+                <button (click)="saveEdit(review._id)" class="btn btn-primary btn-sm" [disabled]="saving">
+                  {{ saving ? 'Saving...' : 'Save Changes' }}
+                </button>
+                <button (click)="cancelEdit()" class="btn btn-secondary btn-sm" [disabled]="saving">Cancel</button>
+              </div>
+            </div>
+          } @else {
+            <div class="review-content-wrap">
+              <div class="review-rating-row">
+                <div class="star-rating">
+                  <span class="star-icon">★</span>
+                  <span class="rating-val">{{ review.rating }}/5</span>
+                </div>
+                <span class="review-date">{{ review.createdAt | date:'mediumDate' }}</span>
+              </div>
+              <p class="review-text">{{ review.comment }}</p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

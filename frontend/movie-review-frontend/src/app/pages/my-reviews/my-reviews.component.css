@@ -1,0 +1,150 @@
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.review-item-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: border-color var(--transition);
+}
+
+.review-item-card:hover {
+  border-color: rgba(229, 9, 20, 0.4);
+}
+
+.review-movie-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.review-movie-thumb {
+  width: 50px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.review-movie-meta {
+  flex: 1;
+}
+
+.review-movie-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: block;
+  margin-bottom: 4px;
+  transition: color var(--transition);
+}
+
+.review-movie-title:hover {
+  color: var(--accent-red);
+}
+
+.review-movie-sub {
+  display: flex;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.review-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.review-rating-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.star-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #ffc107;
+  font-weight: 700;
+}
+
+.review-date {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.review-text {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+/* Edit Box */
+.edit-box {
+  background: var(--bg-surface);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rating-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.edit-label {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.stars-interactive {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.star-btn {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: #4b5563;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.star-btn:hover,
+.star-btn.active {
+  color: #ffc107;
+  transform: scale(1.15);
+}
+
+.rating-number {
+  font-weight: 700;
+  color: #ffc107;
+  margin-left: 8px;
+}
+
+.edit-textarea {
+  resize: vertical;
+}
+
+.edit-btn-row {
+  display: flex;
+  gap: 10px;
+}

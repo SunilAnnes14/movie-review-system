@@ -1,0 +1,21 @@
+{
+  "name": "cinevault-movie-review-system",
+  "version": "1.0.0",
+  "description": "CineVault - Full-Stack Movie Review & Rating System",
+  "scripts": {
+    "start": "node backend/server.js",
+    "backend": "cd backend && npm run dev",
+    "frontend": "cd frontend/movie-review-frontend && npm start",
+    "seed": "cd backend && npm run seed",
+    "build": "cd frontend/movie-review-frontend && npm run build"
+  },
+  "keywords": [
+    "movie-review",
+    "angular",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC"
+}
