@@ -10,6 +10,8 @@ export interface Movie {
   backdrop?: string;
   trailer?: string;
   duration?: number;
+  originalLanguage?: string;
+  keywords?: string[];
   averageRating: number;
   reviewCount: number;
   totalReviews?: number;

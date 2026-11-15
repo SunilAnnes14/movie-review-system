@@ -16,3 +16,6 @@ backend/.mongo-cache/
 # Build output
 dist/
 build/
+
+# User uploads
+backend/uploads/

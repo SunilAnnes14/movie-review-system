@@ -30,15 +30,17 @@ import { RouterLink } from '@angular/router';
     }
     .not-found-content {
       max-width: 500px;
-      padding: 40px;
+      padding: 40px 16px;
+      min-width: 0;
     }
     .code {
-      font-size: 7rem;
-      font-weight: 900;
-      color: var(--accent-red);
+      font-family: var(--font-display);
+      font-size: clamp(4.5rem, 22vw, 7rem);
+      font-weight: 700;
+      color: var(--accent);
       line-height: 1;
       margin-bottom: 16px;
-      text-shadow: 0 0 30px rgba(229, 9, 20, 0.4);
+      text-shadow: 0 0 30px rgba(212, 166, 74, 0.35);
     }
     h2 {
       font-size: 2rem;
@@ -53,7 +55,8 @@ import { RouterLink } from '@angular/router';
     }
     .actions {
       display: flex;
-      gap: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
       justify-content: center;
     }
   `]

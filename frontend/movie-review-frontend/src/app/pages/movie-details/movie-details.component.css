@@ -4,6 +4,7 @@
   display: flex;
   align-items: flex-end;
   padding-bottom: 40px;
+  overflow: hidden;
 }
 
 .detail-backdrop {
@@ -269,7 +270,7 @@
   height: 38px;
   border-radius: 50%;
   background: var(--accent);
-  color: white;
+  color: var(--on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -450,3 +451,9 @@
   from { transform: translateY(20px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+/* CineVault 2.0 */
+.vault-status { display: inline-flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.spoiler-toggle { margin: 4px 0 12px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.review-form-card cv-review-assistant { display: block; margin: 0 0 14px; }
+.similar { padding-bottom: 60px; }

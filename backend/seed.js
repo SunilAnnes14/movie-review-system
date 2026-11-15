@@ -61,7 +61,7 @@ const movies = [
     releaseYear: 1972,
     director: 'Francis Ford Coppola',
     cast: ['Marlon Brando', 'Al Pacino', 'James Caan', 'Robert Duvall'],
-    poster: 'https://m.media-amazon.com/images/M/MV5BYTJkNGQyZDgtZDQ0NC00MDM0LWEzZWQtYzUzZDEwMDljZWNjXkEyXkFqcGc@._V1_.jpg'
+    poster: '' // original artwork link is dead; the app renders a generated poster
   },
   {
     title: 'Spirited Away',
@@ -115,7 +115,7 @@ const movies = [
     releaseYear: 1999,
     director: 'The Wachowskis',
     cast: ['Keanu Reeves', 'Laurence Fishburne', 'Carrie-Anne Moss', 'Hugo Weaving'],
-    poster: 'https://m.media-amazon.com/images/M/MV5BN2NmN2VhMTQtMDNiOS00NDlhLTliMjgtODE2ZTY0ODQyNDkwXkEyXkFqcGc@._V1_.jpg'
+    poster: '' // original artwork link is dead; the app renders a generated poster
   }
 ];
 
@@ -185,6 +185,9 @@ const seedDB = async () => {
       movieId: insertedMovies[1]._id
     });
     console.log('Watchlist entry created for john@example.com');
+
+    // CineVault 2.0 community (friends, circles, chat, polls, events, feed)
+    await require('./seed-social')({ adminUser, testUser });
 
     console.log('\nSeed completed successfully!');
     console.log('\nLogin credentials:');

@@ -2,6 +2,28 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const Review = require('../models/Review');
 const Watchlist = require('../models/Watchlist');
+const Movie = require('../models/Movie');
+const { isHttpUrl } = require('../utils/http');
+
+const VISIBILITY = ['public', 'friends', 'private'];
+const cleanList = (value, max = 20) => (Array.isArray(value) ? value : [])
+  .filter(v => typeof v === 'string').map(v => v.trim()).filter(Boolean).slice(0, max);
+
+const publicProfile = (user) => ({
+  _id: user._id,
+  name: user.name,
+  email: user.email,
+  role: user.role,
+  createdAt: user.createdAt,
+  bio: user.bio,
+  avatar: user.avatar,
+  onboarded: user.onboarded,
+  favoriteGenres: user.favoriteGenres,
+  favoriteDirectors: user.favoriteDirectors,
+  favoriteActors: user.favoriteActors,
+  favoriteMovies: user.favoriteMovies,
+  privacy: user.privacy
+});
 
 // Generate JWT
 const generateToken = (id) => {
@@ -29,11 +51,7 @@ const register = async (req, res, next) => {
     const user = await User.create({ name, email, password });
 
     res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
+      ...publicProfile(user),
       token: generateToken(user._id)
     });
   } catch (error) {
@@ -65,11 +83,7 @@ const login = async (req, res, next) => {
     }
 
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
+      ...publicProfile(user),
       token: generateToken(user._id)
     });
   } catch (error) {
@@ -87,11 +101,7 @@ const getProfile = async (req, res, next) => {
     const watchlistCount = await Watchlist.countDocuments({ userId: req.user._id });
 
     res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      createdAt: user.createdAt,
+      ...publicProfile(user),
       reviewCount,
       watchlistCount
     });
@@ -121,11 +131,7 @@ const updateProfile = async (req, res, next) => {
     const updatedUser = await user.save();
 
     res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      role: updatedUser.role,
-      createdAt: updatedUser.createdAt,
+      ...publicProfile(updatedUser),
       token: generateToken(updatedUser._id)
     });
   } catch (error) {
@@ -133,4 +139,41 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { register, login, getProfile, updateProfile };
+// @desc    Update taste preferences (onboarding), bio/avatar and privacy controls
+// @route   PUT /api/auth/preferences
+// @access  Private
+const updatePreferences = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const b = req.body || {};
+
+    if (b.favoriteGenres !== undefined) user.favoriteGenres = cleanList(b.favoriteGenres, 12);
+    if (b.favoriteDirectors !== undefined) user.favoriteDirectors = cleanList(b.favoriteDirectors, 12);
+    if (b.favoriteActors !== undefined) user.favoriteActors = cleanList(b.favoriteActors, 12);
+    if (b.favoriteMovies !== undefined) {
+      const ids = (Array.isArray(b.favoriteMovies) ? b.favoriteMovies : []).slice(0, 20);
+      user.favoriteMovies = await Movie.find({ _id: { $in: ids.filter(id => /^[0-9a-f]{24}$/i.test(id)) } }).distinct('_id');
+    }
+    if (typeof b.bio === 'string') user.bio = b.bio.slice(0, 300);
+    if (typeof b.avatar === 'string') {
+      if (!isHttpUrl(b.avatar)) return res.status(400).json({ message: 'Avatar must be an http(s) URL' });
+      user.avatar = b.avatar;
+    }
+    if (b.privacy && typeof b.privacy === 'object') {
+      const p = b.privacy;
+      if (VISIBILITY.includes(p.profileVisibility)) user.privacy.profileVisibility = p.profileVisibility;
+      if (VISIBILITY.includes(p.libraryVisibility)) user.privacy.libraryVisibility = p.libraryVisibility;
+      for (const flag of ['allowHistoryForAI', 'allowReviewsForAI', 'spoilerShield']) {
+        if (typeof p[flag] === 'boolean') user.privacy[flag] = p[flag];
+      }
+    }
+    if (b.onboarded === true) user.onboarded = true;
+
+    await user.save();
+    res.json(publicProfile(user));
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { register, login, getProfile, updateProfile, updatePreferences };

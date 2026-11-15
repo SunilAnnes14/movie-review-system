@@ -1,22 +1,29 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap');
+@import './styles/v2.css';
 
 /* ===== CSS CUSTOM PROPERTIES ===== */
 :root {
-  --bg-primary: #0a0a0a;
-  --bg-secondary: #111111;
-  --bg-tertiary: #1a1a1a;
-  --bg-card: #161616;
-  --bg-card-hover: #1e1e1e;
-  --bg-input: #1a1a1a;
+  --bg-primary: #08080a;
+  --bg-secondary: #0f0f12;
+  --bg-tertiary: #18181c;
+  --bg-card: #131316;
+  --bg-card-hover: #1b1b20;
+  --bg-input: #17171b;
   --bg-glass: rgba(255, 255, 255, 0.03);
 
   --text-primary: #ffffff;
-  --text-secondary: #a0a0a0;
-  --text-muted: #666666;
+  --text-secondary: #a8a6a1;
+  --text-muted: #6f6d69;
 
-  --accent: #e50914;
-  --accent-hover: #ff1a25;
-  --accent-soft: rgba(229, 9, 20, 0.15);
+  --accent: #d4a64a;
+  --accent-hover: #e8bd62;
+  --accent-soft: rgba(212, 166, 74, 0.14);
+  --on-accent: #1b1405;
+  --accent-gradient: linear-gradient(135deg, #f0cf83 0%, #d4a64a 45%, #a87a2a 100%);
+  --success: #4ade80;
+  --danger: #f87171;
+  --info: #7dd3fc;
+  --sidebar-width: 248px;
 
   --border-color: rgba(255, 255, 255, 0.08);
   --border-hover: rgba(255, 255, 255, 0.15);
@@ -24,7 +31,7 @@
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 8px 40px rgba(0, 0, 0, 0.5);
-  --shadow-glow: 0 0 20px rgba(229, 9, 20, 0.15);
+  --shadow-glow: 0 0 24px rgba(212, 166, 74, 0.18);
 
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -32,7 +39,7 @@
   --radius-xl: 20px;
 
   --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Outfit', 'Inter', sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
 
   --transition-fast: 0.15s ease;
   --transition-normal: 0.25s ease;
@@ -157,8 +164,8 @@ ul, ol {
 }
 
 .btn-primary {
-  background: var(--accent);
-  color: white;
+  background: var(--accent-gradient);
+  color: var(--on-accent);
 }
 
 .btn-primary:hover {
@@ -326,7 +333,7 @@ ul, ol {
 .badge-accent {
   background: var(--accent-soft);
   color: var(--accent);
-  border-color: rgba(229, 9, 20, 0.2);
+  border-color: rgba(212, 166, 74, 0.2);
 }
 
 /* ===== LOADING ===== */

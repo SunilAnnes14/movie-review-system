@@ -1,27 +1,45 @@
 const Movie = require('../models/Movie');
 const Review = require('../models/Review');
 const Watchlist = require('../models/Watchlist');
+const tmdb = require('../services/tmdb');
+const cinematch = require('../ai/cinematch');
+const { escapeRegex } = require('../utils/http');
 
 // @desc    Get all movies with filtering, sorting, search
 // @route   GET /api/movies
 // @access  Public
 const getMovies = async (req, res, next) => {
   try {
-    const { search, genre, year, minRating, sort, page = 1, limit = 12 } = req.query;
+    const { search, genre, year, minRating, sort, language } = req.query;
+    let { page = 1, limit = 12 } = req.query;
+    limit = Math.min(Math.max(parseInt(limit) || 12, 1), 100);
+    page = Math.max(parseInt(page) || 1, 1);
     let query = {};
 
     // Search
     if (search) {
+      const safe = escapeRegex(search);
       query.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { director: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
+        { title: { $regex: safe, $options: 'i' } },
+        { director: { $regex: safe, $options: 'i' } },
+        { description: { $regex: safe, $options: 'i' } },
+        { cast: { $regex: safe, $options: 'i' } }
       ];
     }
 
     // Genre filter
     if (genre) {
       query.genre = { $in: genre.split(',') };
+    }
+
+    // Language filter (ISO 639-1)
+    if (language && /^[a-z]{2}$/i.test(language)) {
+      query.originalLanguage = language.toLowerCase();
+    }
+
+    // Keyword / tag filter (exact match on a movie keyword, e.g. "imdb top", "tamil cinema")
+    if (req.query.keyword) {
+      query.keywords = String(req.query.keyword).toLowerCase().slice(0, 60);
     }
 
     // Year filter
@@ -94,9 +112,10 @@ const getMovie = async (req, res, next) => {
 // @access  Private/Admin
 const createMovie = async (req, res, next) => {
   try {
-    const { title, description, genre, releaseYear, director, cast, poster, backdrop, trailer, duration } = req.body;
+    const { title, description, genre, releaseYear, director, cast, poster, backdrop, trailer, duration, language } = req.body;
 
     const movie = await Movie.create({
+      originalLanguage: /^[a-z]{2}$/i.test(language || '') ? language.toLowerCase() : 'en',
       title,
       description,
       genre: Array.isArray(genre) ? genre : [genre],
@@ -109,6 +128,7 @@ const createMovie = async (req, res, next) => {
       duration: duration ? Number(duration) : 120
     });
 
+    cinematch.invalidateCatalog();
     res.status(201).json(movie);
   } catch (error) {
     next(error);
@@ -137,8 +157,10 @@ const updateMovie = async (req, res, next) => {
     movie.backdrop = backdrop !== undefined ? backdrop : movie.backdrop;
     movie.trailer = trailer !== undefined ? trailer : movie.trailer;
     movie.duration = duration !== undefined ? Number(duration) : movie.duration;
+    if (/^[a-z]{2}$/i.test(req.body.language || '')) movie.originalLanguage = req.body.language.toLowerCase();
 
     const updatedMovie = await movie.save();
+    cinematch.invalidateCatalog();
     res.json(updatedMovie);
   } catch (error) {
     next(error);
@@ -159,6 +181,7 @@ const deleteMovie = async (req, res, next) => {
     await Review.deleteMany({ movieId: movie._id });
     await Watchlist.deleteMany({ movieId: movie._id });
     await Movie.findByIdAndDelete(req.params.id);
+    cinematch.invalidateCatalog();
 
     res.json({ message: 'Movie deleted successfully' });
   } catch (error) {
@@ -178,4 +201,31 @@ const getGenres = async (req, res, next) => {
   }
 };
 
-module.exports = { getMovies, getMovie, createMovie, updateMovie, deleteMovie, getGenres };
+// @desc    Import a movie from TMDB into the catalog (any signed-in user can add movies)
+// @route   POST /api/movies/import/:tmdbId
+// @access  Private
+const importMovie = async (req, res, next) => {
+  try {
+    const tmdbId = Number(req.params.tmdbId);
+    if (!Number.isInteger(tmdbId) || tmdbId <= 0) return res.status(400).json({ message: 'Invalid TMDB id' });
+    const existed = await Movie.exists({ tmdbId });
+    const movie = await tmdb.importMovie(tmdbId, req.user._id);
+    cinematch.invalidateCatalog();
+    res.status(existed ? 200 : 201).json(movie);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Content-similar movies ("more like this")
+// @route   GET /api/movies/:id/similar
+// @access  Public
+const getSimilar = async (req, res, next) => {
+  try {
+    res.json(await cinematch.similarMovies(req.params.id, Math.min(Number(req.query.limit) || 8, 20)));
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getMovies, getMovie, createMovie, updateMovie, deleteMovie, getGenres, importMovie, getSimilar };

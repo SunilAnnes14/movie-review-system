@@ -1,3 +1,4 @@
+import { posterFallback } from '../../shared/poster-fallback';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink, Router } from '@angular/router';
@@ -9,12 +10,20 @@ import { WatchlistService } from '../../services/watchlist.service';
 import { AuthService } from '../../services/auth.service';
 import { Movie } from '../../models/movie.model';
 import { Review } from '../../models/review.model';
+import { ApiService } from '../../services/api.service';
+import { ToastService } from '../../services/toast.service';
+import { ReviewAssistantComponent } from '../../components/review-assistant.component';
+import { ShareToChatComponent } from '../../components/share-to-chat.component';
+import { SpoilerTextComponent } from '../../shared/spoiler-text.component';
+import { PosterTileComponent } from '../../shared/poster-tile.component';
+import { VAULT_STATUSES, LANGUAGES } from '../../config';
+import { VaultStatus } from '../../services/watchlist.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-movie-details',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, ReviewAssistantComponent, SpoilerTextComponent, PosterTileComponent, ShareToChatComponent],
   templateUrl: './movie-details.component.html',
   styleUrl: './movie-details.component.css'
 })
@@ -23,6 +32,13 @@ export class MovieDetailsComponent implements OnInit {
   reviews: Review[] = [];
   loading = true;
   inWatchlist = false;
+  vaultStatus: VaultStatus | null = null;
+  statuses = VAULT_STATUSES;
+  similar: any[] = [];
+  reviewSpoiler: boolean | undefined = undefined;
+  editSpoiler: boolean | undefined = undefined;
+  sharing = false;
+  shareChat: { reviewId?: string } | null = null;
   message = '';
   messageType = '';
 
@@ -50,7 +66,9 @@ export class MovieDetailsComponent implements OnInit {
     private reviewService: ReviewService,
     private watchlistService: WatchlistService,
     public authService: AuthService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private api: ApiService,
+    private toast: ToastService
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +76,7 @@ export class MovieDetailsComponent implements OnInit {
       const id = params['id'];
       this.loadMovie(id);
       this.loadReviews(id);
+      this.api.similarMovies(id).subscribe({ next: s => (this.similar = s), error: () => (this.similar = []) });
       if (this.authService.isLoggedIn) {
         this.checkWatchlist(id);
       }
@@ -91,7 +110,29 @@ export class MovieDetailsComponent implements OnInit {
 
   checkWatchlist(movieId: string): void {
     this.watchlistService.checkWatchlist(movieId).subscribe({
-      next: (res) => this.inWatchlist = res.inWatchlist
+      next: (res) => { this.inWatchlist = res.inWatchlist; this.vaultStatus = res.status; }
+    });
+  }
+
+  setVaultStatus(status: VaultStatus): void {
+    if (!this.movie) return;
+    const obs = this.inWatchlist ? this.watchlistService.setStatus(this.movie._id, status) : this.watchlistService.addToWatchlist(this.movie._id, status);
+    obs.subscribe({
+      next: () => {
+        this.inWatchlist = true;
+        this.vaultStatus = status;
+        this.showMessage(status === 'watched' ? 'Marked as watched — rate it below!' : 'Vault updated', 'success');
+      },
+      error: (err) => this.showMessage(err.error?.message || 'Error', 'error')
+    });
+  }
+
+  shareToFeed(): void {
+    if (!this.movie) return;
+    this.sharing = true;
+    this.api.createPost({ kind: 'recommendation', movieId: this.movie._id, text: '' }).subscribe({
+      next: () => { this.sharing = false; this.toast.success('Recommended on CineFeed'); },
+      error: (e) => { this.sharing = false; this.toast.error(e); }
     });
   }
 
@@ -102,6 +143,7 @@ export class MovieDetailsComponent implements OnInit {
       this.watchlistService.removeFromWatchlist(this.movie._id).subscribe({
         next: () => {
           this.inWatchlist = false;
+          this.vaultStatus = null;
           this.showMessage('Removed from watchlist', 'success');
         },
         error: (err) => this.showMessage(err.error?.message || 'Error', 'error')
@@ -110,6 +152,7 @@ export class MovieDetailsComponent implements OnInit {
       this.watchlistService.addToWatchlist(this.movie._id).subscribe({
         next: () => {
           this.inWatchlist = true;
+          this.vaultStatus = 'want_to_watch';
           this.showMessage('Added to watchlist!', 'success');
         },
         error: (err) => this.showMessage(err.error?.message || 'Error', 'error')
@@ -148,10 +191,14 @@ export class MovieDetailsComponent implements OnInit {
 
     this.reviewService.createReview(this.movie._id, {
       rating: this.reviewRating,
-      comment: this.reviewComment
+      comment: this.reviewComment,
+      containsSpoilers: this.reviewSpoiler
     }).subscribe({
-      next: () => {
-        this.showMessage('Review submitted successfully!', 'success');
+      next: (created) => {
+        this.showMessage(created.containsSpoilers && this.reviewSpoiler === undefined
+          ? 'Review published. CineSpoiler hid the sentences that looked like plot reveals.'
+          : 'Review submitted successfully!', 'success');
+        this.reviewSpoiler = undefined;
         this.reviewRating = 0;
         this.reviewComment = '';
         this.hasReviewed = true;
@@ -170,6 +217,7 @@ export class MovieDetailsComponent implements OnInit {
     this.editingReviewId = review._id;
     this.editRating = review.rating;
     this.editComment = review.comment;
+    this.editSpoiler = review.spoilerMarkedBy === 'user' ? !!review.containsSpoilers : undefined;
   }
 
   cancelEdit(): void {
@@ -179,7 +227,8 @@ export class MovieDetailsComponent implements OnInit {
   saveEdit(reviewId: string): void {
     this.reviewService.updateReview(reviewId, {
       rating: this.editRating,
-      comment: this.editComment
+      comment: this.editComment,
+      containsSpoilers: this.editSpoiler
     }).subscribe({
       next: () => {
         this.showMessage('Review updated!', 'success');
@@ -224,12 +273,16 @@ export class MovieDetailsComponent implements OnInit {
 
   getPosterUrl(): string {
     if (!this.movie) return '';
-    return this.movie.poster || 'assets/default-poster.jpg';
+    return this.movie.poster || posterFallback(this.movie.title);
   }
 
   getBackdropUrl(): string {
     if (!this.movie) return '';
     return this.movie.backdrop || this.movie.poster || '';
+  }
+
+  languageName(code: string): string {
+    return LANGUAGES[code] || code.toUpperCase();
   }
 
   formatDuration(duration: number | undefined): string {

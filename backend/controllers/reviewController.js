@@ -1,5 +1,38 @@
 const Review = require('../models/Review');
 const Movie = require('../models/Movie');
+const Post = require('../models/Post');
+const cinespoiler = require('../ai/cinespoiler');
+const { sentiment } = require('../ai/text');
+
+/**
+ * Run CineSpoiler on a review. An explicit choice from the author (containsSpoilers true/false)
+ * always wins; otherwise the classifier's verdict is applied automatically.
+ */
+async function applySpoilerCheck(review, movie, body, userId) {
+  const detection = await cinespoiler.detect(review.comment, movie, { log: { user: userId, source: 'review', sourceId: review._id } });
+  if (typeof body.containsSpoilers === 'boolean') {
+    review.containsSpoilers = body.containsSpoilers;
+    review.spoilerMarkedBy = body.containsSpoilers ? 'user' : 'none';
+    review.spoilerSentences = body.containsSpoilers ? (detection.flagged.length ? detection.flagged : detection.sentences.map(s => s.index)) : [];
+  } else {
+    review.containsSpoilers = detection.isSpoiler;
+    review.spoilerMarkedBy = detection.isSpoiler ? 'auto' : 'none';
+    review.spoilerSentences = detection.flagged;
+  }
+  review.sentiment = sentiment(review.comment).score;
+  return detection;
+}
+
+// Share a review to CineFeed, respecting the author's library visibility
+async function shareReviewToFeed(review, user) {
+  const level = user.privacy?.libraryVisibility || 'friends';
+  if (level === 'private') return;
+  await Post.findOneAndUpdate(
+    { review: review._id },
+    { author: user._id, kind: 'review', movie: review.movieId, review: review._id, visibility: level === 'public' ? 'public' : 'friends', isSpoiler: review.containsSpoilers, spoilerMarkedBy: review.spoilerMarkedBy },
+    { upsert: true, setDefaultsOnInsert: true }
+  );
+}
 
 // @desc    Get reviews for a movie
 // @route   GET /api/movies/:id/reviews
@@ -36,12 +69,16 @@ const createReview = async (req, res, next) => {
       return res.status(400).json({ message: 'You have already reviewed this movie' });
     }
 
-    const review = await Review.create({
+    const review = new Review({
       movieId: req.params.id,
       userId: req.user._id,
       rating: req.body.rating,
       comment: req.body.comment
     });
+    await review.validate();
+    await applySpoilerCheck(review, movie, req.body, req.user._id);
+    await review.save();
+    await shareReviewToFeed(review, req.user).catch(() => {});
 
     const populatedReview = await Review.findById(review._id)
       .populate('userId', 'name email');
@@ -70,7 +107,10 @@ const updateReview = async (req, res, next) => {
     review.rating = req.body.rating || review.rating;
     review.comment = req.body.comment || review.comment;
 
+    const movie = await Movie.findById(review.movieId).lean();
+    await applySpoilerCheck(review, movie, req.body, req.user._id);
     const updatedReview = await review.save();
+    await Post.updateOne({ review: review._id }, { isSpoiler: review.containsSpoilers, spoilerMarkedBy: review.spoilerMarkedBy }).catch(() => {});
     const populatedReview = await Review.findById(updatedReview._id)
       .populate('userId', 'name email');
 
@@ -100,6 +140,7 @@ const deleteReview = async (req, res, next) => {
 
     const movieId = review.movieId;
     await Review.findByIdAndDelete(req.params.id);
+    await Post.deleteMany({ review: req.params.id });
 
     // Recalculate movie average
     await Review.calculateAverageRating(movieId);

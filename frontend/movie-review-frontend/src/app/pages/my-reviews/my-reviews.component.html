@@ -28,7 +28,7 @@
         <div class="review-item-card">
           <!-- Movie preview banner / thumb -->
           <div class="review-movie-info">
-            <img [src]="review.movieId?.poster || 'assets/default-poster.jpg'" [alt]="review.movieId?.title" class="review-movie-thumb" />
+            <img [src]="review.movieId?.poster || fallback(review.movieId?.title)" [alt]="review.movieId?.title" class="review-movie-thumb" />
             <div class="review-movie-meta">
               <a [routerLink]="['/movies', review.movieId?._id || review.movieId]" class="review-movie-title">
                 {{ review.movieId?.title || 'Unknown Movie' }}

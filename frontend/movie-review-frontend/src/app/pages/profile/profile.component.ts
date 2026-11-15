@@ -6,12 +6,13 @@ import { AuthService } from '../../services/auth.service';
 import { ReviewService } from '../../services/review.service';
 import { User } from '../../models/user.model';
 import { Review } from '../../models/review.model';
+import { ProfileSettingsComponent } from './profile-settings.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, RouterLink, FormsModule],
+  imports: [CommonModule, RouterLink, FormsModule, ProfileSettingsComponent],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.css'
 })

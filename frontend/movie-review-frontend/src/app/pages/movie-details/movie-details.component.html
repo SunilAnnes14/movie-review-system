@@ -23,6 +23,10 @@
           <span class="meta-item">⏱ {{ formatDuration(movie.duration) }}</span>
           <span class="meta-divider">·</span>
           <span class="meta-item">🎬 {{ movie.director }}</span>
+          @if (movie.originalLanguage && movie.originalLanguage !== 'en') {
+            <span class="meta-divider">·</span>
+            <span class="meta-item">🗣 {{ languageName(movie.originalLanguage) }}</span>
+          }
         </div>
 
         <div class="detail-genres">
@@ -64,9 +68,14 @@
             </button>
           }
           @if (authService.isLoggedIn) {
-            <button class="btn" [class.btn-primary]="!movie.trailer && !inWatchlist" [class.btn-secondary]="movie.trailer || inWatchlist" (click)="toggleWatchlist()">
-              {{ inWatchlist ? '✓ In Watchlist' : '+ Add to Watchlist' }}
-            </button>
+            <div class="vault-status">
+              @for (s of statuses; track s.value) {
+                <button class="chip" [class.active]="vaultStatus === s.value" (click)="setVaultStatus(s.value)">{{ s.icon }} {{ s.label }}</button>
+              }
+              @if (inWatchlist) { <button class="chip" title="Remove from vault" (click)="toggleWatchlist()">✕</button> }
+            </div>
+            <button class="btn btn-outline" [disabled]="sharing" (click)="shareToFeed()">⭐ Recommend</button>
+            <button class="btn btn-outline" (click)="shareChat = {}">💬 Send to chat</button>
           }
         </div>
       </div>
@@ -110,6 +119,12 @@
           [(ngModel)]="reviewComment"
           rows="4"
         ></textarea>
+        <label class="switch text-sm spoiler-toggle">
+          <input type="checkbox" [ngModel]="reviewSpoiler === true" (ngModelChange)="reviewSpoiler = $event ? true : undefined" />
+          This review contains spoilers
+          <span class="text-xs text-muted">{{ reviewSpoiler === undefined ? "(CineSpoiler will check automatically)" : (reviewSpoiler ? "" : "(you marked it spoiler-free)") }}</span>
+        </label>
+        <cv-review-assistant [text]="reviewComment" [movieId]="movie._id" [rating]="reviewRating" (apply)="reviewComment = $event" (spoiler)="reviewSpoiler = $event" />
         <button
           class="btn btn-primary"
           (click)="submitReview()"
@@ -152,6 +167,7 @@
                   }
                 </div>
                 <textarea class="form-textarea" [(ngModel)]="editComment" rows="3"></textarea>
+                <label class="switch text-sm spoiler-toggle"><input type="checkbox" [ngModel]="editSpoiler === true" (ngModelChange)="editSpoiler = $event" /> Contains spoilers</label>
                 <div class="edit-actions">
                   <button class="btn btn-primary btn-sm" (click)="saveEdit(review._id)">Save</button>
                   <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">Cancel</button>
@@ -171,11 +187,13 @@
                   <span class="star">★</span> {{ review.rating }}/5
                 </div>
               </div>
-              <p class="review-comment">{{ review.comment }}</p>
+              <p class="review-comment"><cv-spoiler-text [text]="review.comment" [sentences]="review.spoilerSentences || null" [spoiler]="!!review.containsSpoilers" [movieId]="movie._id" /></p>
+              @if (review.containsSpoilers) { <p class="text-xs text-muted">🛡️ {{ review.spoilerMarkedBy === 'user' ? 'Marked as spoiler by the author' : 'Spoilers hidden by CineSpoiler' }}</p> }
               @if (isReviewOwner(review) || canDeleteReview(review)) {
                 <div class="review-actions">
                   @if (isReviewOwner(review)) {
                     <button class="btn btn-outline btn-sm" (click)="startEdit(review)">Edit</button>
+                    <button class="btn btn-outline btn-sm" (click)="shareChat = { reviewId: review._id }">Share</button>
                   }
                   @if (canDeleteReview(review)) {
                     <button class="btn btn-danger btn-sm" (click)="deleteReview(review._id)">Delete</button>
@@ -188,6 +206,18 @@
       }
     </div>
   </div>
+
+  <!-- MORE LIKE THIS (CineMatch content similarity) -->
+  @if (similar.length) {
+    <div class="container similar">
+      <h2 class="section-title">More like {{ movie.title }}</h2>
+      <div class="poster-row">
+        @for (s of similar; track s.movie._id) { <cv-poster [movie]="s.movie" [badge]="s.similarity + '% similar'" /> }
+      </div>
+    </div>
+  }
+
+  @if (shareChat) { <cv-share-to-chat [movieId]="movie._id" [movieTitle]="movie.title" [reviewId]="shareChat.reviewId" (close)="shareChat = null" /> }
 
   <!-- TRAILER MODAL -->
   @if (showTrailerModal && safeTrailerUrl) {

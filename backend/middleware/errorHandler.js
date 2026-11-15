@@ -1,5 +1,11 @@
+const CLIENT_ERRORS = ['ValidationError', 'CastError', 'JsonWebTokenError', 'TokenExpiredError'];
+
 const errorHandler = (err, req, res, next) => {
-  console.error(err.stack);
+  // Expected outcomes (4xx permission/validation errors, 502/503 from an unconfigured or
+  // unreachable TMDB / AI provider) get one line; only unexpected 500s get a full stack trace.
+  const status = err.statusCode || (CLIENT_ERRORS.includes(err.name) || err.code === 11000 ? 400 : 500);
+  if (status === 500) console.error(err.stack);
+  else if (process.env.LOG_CLIENT_ERRORS !== 'false') console.warn(`[${status}] ${req.method} ${req.originalUrl} - ${err.message}`);
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {

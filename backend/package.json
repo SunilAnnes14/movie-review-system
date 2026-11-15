@@ -7,20 +7,30 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "seed": "node seed.js",
-    "test": "node test/api.smoke.mjs",
-    "test:api": "node test/api.smoke.mjs"
+    "test": "node test/api.smoke.mjs && node test/v2.smoke.mjs && node test/integration.mock.mjs",
+    "test:api": "node test/api.smoke.mjs",
+    "test:v2": "node test/v2.smoke.mjs",
+    "movies:add": "node scripts/add-movies.js",
+    "test:integration": "node test/integration.mock.mjs",
+    "test:live": "node test/live.check.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "express-rate-limit": "^8.7.4",
     "express-validator": "^7.2.0",
+    "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.2",
     "mongodb-memory-server": "^11.3.0",
-    "mongoose": "^8.7.0"
+    "mongoose": "^8.7.0",
+    "multer": "^2.5.0",
+    "socket.io": "^4.8.4"
   },
   "devDependencies": {
-    "nodemon": "^3.1.7"
+    "nodemon": "^3.1.7",
+    "socket.io-client": "^4.8.4"
   }
 }

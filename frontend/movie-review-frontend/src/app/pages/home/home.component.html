@@ -1,3 +1,7 @@
+@if (auth.isLoggedIn) {
+  <app-home-dashboard />
+}
+
 @if (loading) {
   <div class="loading-container">
     <div class="spinner"></div>
@@ -11,7 +15,7 @@
       <div class="hero-overlay"></div>
       <div class="hero-content container">
         <div class="hero-info">
-          <span class="hero-badge">⭐ Featured Film</span>
+          <span class="hero-badge">⭐ {{ auth.isLoggedIn ? 'Featured Film' : 'CineVault · Where movies bring people together' }}</span>
           <h1 class="hero-title">{{ featuredMovie.title }}</h1>
           <div class="hero-meta">
             <span class="hero-year">{{ featuredMovie.releaseYear }}</span>

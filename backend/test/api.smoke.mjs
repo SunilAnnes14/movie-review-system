@@ -265,6 +265,12 @@ async function run() {
   res = await call('DELETE', `/reviews/${reviewId}`, { token: userToken });
   check('deleting the same review twice returns 404', res.status === 404);
 
+  // Remove the throwaway account so repeated runs don't accumulate test users
+  res = await call('GET', '/auth/profile', { token: userToken });
+  const testUserId = res.body?._id;
+  res = await call('DELETE', `/users/${testUserId}`, { token: adminToken });
+  check('test account cleaned up', res.status === 200);
+
   // --- Report ---------------------------------------------------------------
   console.log(`\n${passed} passed, ${failed} failed\n`);
   if (failed > 0) {

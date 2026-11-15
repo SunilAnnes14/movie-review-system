@@ -1,3 +1,5 @@
+import { LANGUAGES } from '../../config';
+import { posterFallback } from '../../shared/poster-fallback';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, ActivatedRoute } from '@angular/router';
@@ -23,6 +25,8 @@ export class MoviesComponent implements OnInit {
 
   searchQuery = '';
   selectedGenre = '';
+  selectedLanguage = '';
+  languages = Object.entries(LANGUAGES).filter(([code]) => ['en', 'ta', 'ja', 'ko', 'pt'].includes(code));
   selectedYear = '';
   selectedSort = '';
   selectedRating = '';
@@ -46,6 +50,7 @@ export class MoviesComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['genre']) this.selectedGenre = params['genre'];
+      if (params['language']) this.selectedLanguage = params['language'];
       if (params['sort']) this.selectedSort = params['sort'];
       this.loadGenres();
       this.loadMovies();
@@ -66,6 +71,7 @@ export class MoviesComponent implements OnInit {
     };
     if (this.searchQuery) params.search = this.searchQuery;
     if (this.selectedGenre) params.genre = this.selectedGenre;
+    if (this.selectedLanguage) params.language = this.selectedLanguage;
     if (this.selectedYear) params.year = parseInt(this.selectedYear);
     if (this.selectedSort) params.sort = this.selectedSort;
     if (this.selectedRating) params.minRating = parseFloat(this.selectedRating);
@@ -95,6 +101,7 @@ export class MoviesComponent implements OnInit {
   clearFilters(): void {
     this.searchQuery = '';
     this.selectedGenre = '';
+    this.selectedLanguage = '';
     this.selectedYear = '';
     this.selectedSort = '';
     this.selectedRating = '';
@@ -135,7 +142,7 @@ export class MoviesComponent implements OnInit {
   }
 
   getPosterUrl(movie: Movie): string {
-    return movie.poster || 'https://via.placeholder.com/300x450/1a1a1a/333?text=' + encodeURIComponent(movie.title);
+    return movie.poster || posterFallback(movie.title);
   }
 
   get pageNumbers(): number[] {
@@ -147,6 +154,6 @@ export class MoviesComponent implements OnInit {
   }
 
   get hasActiveFilters(): boolean {
-    return !!(this.searchQuery || this.selectedGenre || this.selectedYear || this.selectedSort || this.selectedRating);
+    return !!(this.searchQuery || this.selectedGenre || this.selectedLanguage || this.selectedYear || this.selectedSort || this.selectedRating);
   }
 }

@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -7,7 +8,7 @@ import { Review, ReviewFormData } from '../models/review.model';
   providedIn: 'root'
 })
 export class ReviewService {
-  private apiUrl = 'http://localhost:5000/api';
+  private apiUrl = `${API_URL}`;
 
   constructor(private http: HttpClient) {}
 

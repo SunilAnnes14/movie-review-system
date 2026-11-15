@@ -6,13 +6,16 @@ const {
   createMovie,
   updateMovie,
   deleteMovie,
-  getGenres
+  getGenres,
+  importMovie,
+  getSimilar
 } = require('../controllers/movieController');
 const { getMovieReviews, createReview } = require('../controllers/reviewController');
 const { protect, adminOnly } = require('../middleware/auth');
 
 // Genre list (must be before /:id to avoid conflicts)
 router.get('/genres/list', getGenres);
+router.post('/import/:tmdbId', protect, importMovie);
 
 // Movie CRUD
 router.route('/')
@@ -23,6 +26,8 @@ router.route('/:id')
   .get(getMovie)
   .put(protect, adminOnly, updateMovie)
   .delete(protect, adminOnly, deleteMovie);
+
+router.get('/:id/similar', getSimilar);
 
 // Movie reviews
 router.route('/:id/reviews')

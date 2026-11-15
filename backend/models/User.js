@@ -27,10 +27,28 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
-  }
+  },
+  bio: { type: String, trim: true, maxlength: 300, default: '' },
+  avatar: { type: String, trim: true, maxlength: 500, default: '' },
+  // CineMatch cold-start onboarding preferences (user_preferences)
+  favoriteGenres: { type: [String], default: [] },
+  favoriteDirectors: { type: [String], default: [] },
+  favoriteActors: { type: [String], default: [] },
+  favoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }],
+  onboarded: { type: Boolean, default: false },
+  privacy: {
+    profileVisibility: { type: String, enum: ['public', 'friends', 'private'], default: 'public' },
+    libraryVisibility: { type: String, enum: ['public', 'friends', 'private'], default: 'friends' },
+    allowHistoryForAI: { type: Boolean, default: true },
+    allowReviewsForAI: { type: Boolean, default: true },
+    spoilerShield: { type: Boolean, default: true }
+  },
+  lastSeen: { type: Date, default: Date.now }
 }, {
   timestamps: true
 });
+
+userSchema.index({ name: 1 });
 
 // Hash password before saving
 userSchema.pre('save', async function(next) {

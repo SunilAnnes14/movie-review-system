@@ -22,14 +22,21 @@ const reviewSchema = new mongoose.Schema({
     required: [true, 'Review comment is required'],
     trim: true,
     minlength: [5, 'Review must be at least 5 characters'],
-    maxlength: [1000, 'Review cannot exceed 1000 characters']
-  }
+    maxlength: [5000, 'Review cannot exceed 5000 characters']
+  },
+  // CineSpoiler results (sentence indexes flagged as spoilers)
+  containsSpoilers: { type: Boolean, default: false },
+  spoilerSentences: { type: [Number], default: [] },
+  spoilerMarkedBy: { type: String, enum: ['none', 'auto', 'user'], default: 'none' },
+  sentiment: { type: Number }
 }, {
   timestamps: true
 });
 
 // One review per user per movie
 reviewSchema.index({ movieId: 1, userId: 1 }, { unique: true });
+reviewSchema.index({ userId: 1, createdAt: -1 });
+
 
 // Static method to calculate average rating for a movie
 reviewSchema.statics.calculateAverageRating = async function(movieId) {

@@ -75,6 +75,18 @@ const deleteUser = async (req, res, next) => {
 
     await Review.deleteMany({ userId: user._id });
     await Watchlist.deleteMany({ userId: user._id });
+    const Friendship = require('../models/Friendship');
+    const Follow = require('../models/Follow');
+    const CircleMember = require('../models/CircleMember');
+    const Post = require('../models/Post');
+    const Notification = require('../models/Notification');
+    await Promise.all([
+      Friendship.deleteMany({ $or: [{ requester: user._id }, { recipient: user._id }] }),
+      Follow.deleteMany({ $or: [{ follower: user._id }, { following: user._id }] }),
+      CircleMember.deleteMany({ user: user._id }),
+      Post.deleteMany({ author: user._id }),
+      Notification.deleteMany({ user: user._id })
+    ]);
     await User.findByIdAndDelete(req.params.id);
 
     res.json({ message: 'User deleted successfully' });

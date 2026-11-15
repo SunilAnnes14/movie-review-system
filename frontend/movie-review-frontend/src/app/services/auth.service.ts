@@ -2,17 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { User, AuthResponse, LoginCredentials, RegisterData } from '../models/user.model';
+import { API_URL } from '../config';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5000/api/auth';
+  private apiUrl = `${API_URL}/auth`;
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private http: HttpClient) {
     this.loadUser();
+    if (this.isLoggedIn) this.refresh();
   }
 
   private loadUser(): void {
@@ -26,6 +28,14 @@ export class AuthService {
         localStorage.removeItem('token');
       }
     }
+  }
+
+  /** Re-sync the cached user (preferences, privacy) with the server. */
+  refresh(): void {
+    this.getProfile().subscribe({
+      next: (u) => this.storeUser(u),
+      error: (err) => { if (err.status === 401) this.logout(); }
+    });
   }
 
   register(data: RegisterData): Observable<AuthResponse> {
@@ -44,9 +54,15 @@ export class AuthService {
     return this.http.get<User>(`${this.apiUrl}/profile`);
   }
 
-  updateProfile(data: Partial<User>): Observable<AuthResponse> {
+  updateProfile(data: Partial<User> & { password?: string }): Observable<AuthResponse> {
     return this.http.put<AuthResponse>(`${this.apiUrl}/profile`, data).pipe(
       tap(response => this.handleAuth(response))
+    );
+  }
+
+  updatePreferences(data: Partial<User>): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/preferences`, data).pipe(
+      tap(user => this.storeUser(user))
     );
   }
 
@@ -72,16 +88,15 @@ export class AuthService {
     return localStorage.getItem('token');
   }
 
+  private storeUser(u: User): void {
+    const { token, reviewCount, watchlistCount, ...user } = u as any;
+    const merged = { ...(this.currentUser || {}), ...user } as User;
+    localStorage.setItem('user', JSON.stringify(merged));
+    this.currentUserSubject.next(merged);
+  }
+
   private handleAuth(response: AuthResponse): void {
-    const user: User = {
-      _id: response._id,
-      name: response.name,
-      email: response.email,
-      role: response.role,
-      createdAt: response.createdAt
-    };
-    localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('token', response.token);
-    this.currentUserSubject.next(user);
+    this.storeUser(response);
   }
 }

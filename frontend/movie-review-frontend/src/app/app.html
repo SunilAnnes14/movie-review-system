@@ -1,66 +1,109 @@
-<nav class="navbar" [class.scrolled]="true">
-  <div class="nav-container">
-    <a routerLink="/" class="nav-logo" (click)="closeMobileMenu()">
-      <span class="logo-icon">🎬</span>
-      <span class="logo-text">CineVault</span>
+<div class="shell" [class.menu-open]="mobileMenuOpen">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a routerLink="/" class="brand" (click)="closeMobileMenu()">
+      <span class="brand-mark">CV</span>
+      <span class="brand-text">
+        <span class="brand-name">CineVault</span>
+        <span class="brand-tag">Where movies bring people together</span>
+      </span>
     </a>
 
-    <div class="nav-links" [class.active]="mobileMenuOpen">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMobileMenu()">Home</a>
-      <a routerLink="/movies" routerLinkActive="active" (click)="closeMobileMenu()">Movies</a>
-
-      @if (authService.isLoggedIn) {
-        <a routerLink="/watchlist" routerLinkActive="active" (click)="closeMobileMenu()">Watchlist</a>
-        <a routerLink="/my-reviews" routerLinkActive="active" (click)="closeMobileMenu()">My Reviews</a>
-      }
-
-      @if (authService.isAdmin) {
-        <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()">Admin</a>
-      }
-    </div>
-
-    <div class="nav-actions">
-      @if (authService.isLoggedIn) {
-        <a routerLink="/profile" class="nav-profile" (click)="closeMobileMenu()">
-          <span class="profile-avatar">{{ (authService.currentUser?.name || 'U').charAt(0).toUpperCase() }}</span>
-          <span class="profile-name">{{ authService.currentUser?.name }}</span>
+    <nav class="side-nav">
+      @for (item of visibleNav; track item.path) {
+        <a [routerLink]="item.path" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: !!item.exact }" (click)="closeMobileMenu()">
+          <cv-icon [name]="item.icon" />
+          <span class="grow">{{ item.label }}</span>
+          @if (item.badge && item.badge()) { <span class="nav-badge">{{ item.badge() }}</span> }
         </a>
-        <button class="btn-logout" (click)="logout()">Logout</button>
+      }
+      <div class="nav-sep"></div>
+      <a routerLink="/movies" routerLinkActive="active" (click)="closeMobileMenu()"><cv-icon name="film" /><span>Browse catalog</span></a>
+      @if (authService.isLoggedIn) {
+        <a routerLink="/people" routerLinkActive="active" (click)="closeMobileMenu()"><cv-icon name="people" /><span>Friends</span></a>
+      }
+      @if (authService.isAdmin) {
+        <a routerLink="/admin" routerLinkActive="active" (click)="closeMobileMenu()"><cv-icon name="admin" /><span>Admin</span></a>
+      }
+    </nav>
+
+    <div class="side-footer">
+      @if (authService.isLoggedIn) {
+        <a routerLink="/profile" class="me" (click)="closeMobileMenu()">
+          <cv-avatar [user]="authService.currentUser" size="sm" />
+          <span class="grow truncate">{{ authService.currentUser?.name }}</span>
+        </a>
+        <button class="icon-btn" title="Sign out" (click)="logout()"><cv-icon name="logout" [size]="18" /></button>
       } @else {
-        <a routerLink="/login" class="btn-login" (click)="closeMobileMenu()">Sign In</a>
-        <a routerLink="/register" class="btn-register" (click)="closeMobileMenu()">Sign Up</a>
+        <a routerLink="/login" class="btn btn-secondary btn-sm grow" (click)="closeMobileMenu()">Sign in</a>
+        <a routerLink="/register" class="btn btn-primary btn-sm grow" (click)="closeMobileMenu()">Join</a>
       }
     </div>
+  </aside>
+  <div class="scrim" (click)="closeMobileMenu()"></div>
 
-    <button class="mobile-toggle" (click)="toggleMobileMenu()">
-      @if (mobileMenuOpen) {
-        <span>✕</span>
-      } @else {
-        <span>☰</span>
-      }
-    </button>
+  <!-- MAIN -->
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn mobile-only" (click)="toggleMobileMenu()" aria-label="Menu"><cv-icon name="menu" /></button>
+      <form class="search" (ngSubmit)="search()">
+        <cv-icon name="search" [size]="18" />
+        <input name="q" [(ngModel)]="searchQuery" placeholder="Search movies, directors, cast…" autocomplete="off" />
+      </form>
+      <div class="top-actions">
+        @if (authService.isLoggedIn) {
+          <a routerLink="/ai" [queryParams]="{ tool: 'bot' }" class="icon-btn hidden-mobile" title="Ask CineBot"><cv-icon name="ai" /></a>
+          <div class="notif-wrap">
+            <button class="icon-btn" (click)="toggleNotifications($event)" aria-label="Notifications">
+              <cv-icon name="bell" />
+              @if (unreadNotifications) { <span class="dot-count">{{ unreadNotifications > 9 ? '9+' : unreadNotifications }}</span> }
+            </button>
+            @if (notifOpen) {
+              <div class="notif-panel" (click)="$event.stopPropagation()">
+                <div class="row between notif-head">
+                  <strong>Notifications</strong>
+                  @if (unreadNotifications) { <a class="link" (click)="readAll()">Mark all read</a> }
+                </div>
+                <div class="notif-list">
+                  @for (n of notifications; track n._id) {
+                    <button class="notif" [class.unread]="!n.read" (click)="openNotification(n)">
+                      <cv-avatar [user]="n.actor || { name: 'CineVault' }" size="sm" />
+                      <span class="grow">
+                        <span class="n-title">{{ n.title }}</span>
+                        @if (n.body) { <span class="n-body">{{ n.body }}</span> }
+                        <span class="n-time">{{ n.createdAt | timeAgo }}</span>
+                      </span>
+                    </button>
+                  } @empty {
+                    <div class="state"><div class="icon">🔔</div><p>You're all caught up.</p></div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        } @else {
+          <a routerLink="/login" class="btn btn-outline btn-sm">Sign in</a>
+        }
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+
+    <footer class="footer">
+      <span>© 2026 CineVault · Where movies bring people together.</span>
+      <span class="tmdb-note">Movie data and images from <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>. This product uses the TMDB API but is not endorsed or certified by TMDB.</span>
+    </footer>
   </div>
-</nav>
+</div>
 
-<main class="main-content">
-  <router-outlet />
-</main>
-
-<footer class="footer">
-  <div class="footer-container">
-    <div class="footer-brand">
-      <span class="logo-icon">🎬</span>
-      <span>CineVault</span>
+<!-- TOASTS -->
+<div class="toast-host">
+  @for (t of toast.toasts; track t.id) {
+    <div class="toast" [class.error]="t.type === 'error'" [class.success]="t.type === 'success'" (click)="openToast(t)">
+      <div class="t-title">{{ t.title }}</div>
+      @if (t.body) { <div class="t-body">{{ t.body }}</div> }
     </div>
-    <p class="footer-text">Your premium movie community. Discover, rate, and review your favorite films.</p>
-    <div class="footer-links">
-      <a routerLink="/">Home</a>
-      <a routerLink="/movies">Movies</a>
-      @if (!authService.isLoggedIn) {
-        <a routerLink="/login">Sign In</a>
-        <a routerLink="/register">Sign Up</a>
-      }
-    </div>
-    <p class="footer-copy">&copy; 2024 CineVault. All rights reserved.</p>
-  </div>
-</footer>
+  }
+</div>

@@ -61,10 +61,25 @@ const movieSchema = new mongoose.Schema({
   reviewCount: {
     type: Number,
     default: 0
-  }
+  },
+  // Original language (ISO 639-1, e.g. en, ta, ja). Not named 'language': MongoDB text indexes
+  // reserve that field name for the text-search language.
+  originalLanguage: { type: String, lowercase: true, trim: true, default: 'en' },
+  // TMDB integration
+  tmdbId: { type: Number },
+  keywords: { type: [String], default: [] },
+  characters: { type: [String], default: [] },
+  tmdbRating: { type: Number, default: 0 },
+  popularity: { type: Number, default: 0 },
+  releaseDate: { type: String, default: '' },
+  addedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
 }, {
   timestamps: true
 });
+
+movieSchema.index({ tmdbId: 1 }, { unique: true, sparse: true });
+movieSchema.index({ genre: 1 });
+movieSchema.index({ originalLanguage: 1 });
 
 // Text index for search
 movieSchema.index({ title: 'text', description: 'text', director: 'text' });

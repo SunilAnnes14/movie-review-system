@@ -4,6 +4,9 @@ export interface Review {
   userId: any;
   rating: number;
   comment: string;
+  containsSpoilers?: boolean;
+  spoilerSentences?: number[];
+  spoilerMarkedBy?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -11,4 +14,5 @@ export interface Review {
 export interface ReviewFormData {
   rating: number;
   comment: string;
+  containsSpoilers?: boolean;
 }

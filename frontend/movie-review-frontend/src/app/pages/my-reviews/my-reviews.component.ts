@@ -1,3 +1,4 @@
+import { posterFallback } from '../../shared/poster-fallback';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -14,6 +15,8 @@ import { Review } from '../../models/review.model';
   styleUrl: './my-reviews.component.css'
 })
 export class MyReviewsComponent implements OnInit {
+  fallback = posterFallback;
+
   reviews: Review[] = [];
   loading = true;
   message = '';

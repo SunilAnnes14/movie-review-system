@@ -37,9 +37,11 @@
       </div>
       <div class="stat-card">
         <span class="stat-number">{{ user.watchlistCount || 0 }}</span>
-        <span class="stat-label">Watchlist</span>
+        <span class="stat-label">In vault</span>
       </div>
     </div>
+
+    <app-profile-settings />
 
     @if (recentReviews.length > 0) {
       <div class="profile-section">

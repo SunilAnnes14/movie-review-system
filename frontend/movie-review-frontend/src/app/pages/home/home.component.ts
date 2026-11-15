@@ -1,14 +1,17 @@
+import { posterFallback } from '../../shared/poster-fallback';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MovieService } from '../../services/movie.service';
 import { Movie } from '../../models/movie.model';
+import { AuthService } from '../../services/auth.service';
+import { HomeDashboardComponent } from './home-dashboard.component';
 
 @Component({
   selector: 'app-home',
   changeDetection: ChangeDetectionStrategy.Default,
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, HomeDashboardComponent],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'
 })
@@ -30,7 +33,7 @@ export class HomeComponent implements OnInit {
     { name: 'Animation', icon: '✨', color: '#06b6d4' }
   ];
 
-  constructor(private movieService: MovieService) {}
+  constructor(private movieService: MovieService, public auth: AuthService) {}
 
   ngOnInit(): void {
     this.loadMovies();
@@ -79,6 +82,6 @@ export class HomeComponent implements OnInit {
   }
 
   getPosterUrl(movie: Movie): string {
-    return movie.poster || 'https://via.placeholder.com/300x450/1a1a1a/333?text=' + encodeURIComponent(movie.title);
+    return movie.poster || posterFallback(movie.title);
   }
 }

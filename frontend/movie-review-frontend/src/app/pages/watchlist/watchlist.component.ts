@@ -1,3 +1,4 @@
+import { posterFallback } from '../../shared/poster-fallback';
 import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -48,6 +49,6 @@ export class WatchlistComponent implements OnInit {
   }
 
   getPosterUrl(movie: any): string {
-    return movie?.poster || 'https://via.placeholder.com/300x450/1a1a1a/333?text=Movie';
+    return movie?.poster || posterFallback(movie?.title);
   }
 }
