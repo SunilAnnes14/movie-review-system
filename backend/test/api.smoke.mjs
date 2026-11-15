@@ -1,5 +1,5 @@
 /**
- * End-to-end API smoke test for the CineVault backend.
+ * End-to-end API smoke test for the MoviQ backend.
  * Verifies the complete user/admin flow against the real MongoDB database.
  *
  * Usage:  npm run test:api     (the server must be running on PORT)
@@ -56,7 +56,7 @@ let reviewId;
 let createdMovieId;
 
 async function run() {
-  console.log(`\nCineVault API smoke test -> ${BASE}\n`);
+  console.log(`\nMoviQ API smoke test -> ${BASE}\n`);
 
   // --- Health & catalog -----------------------------------------------------
   console.log('Catalog');

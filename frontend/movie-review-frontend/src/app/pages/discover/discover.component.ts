@@ -33,7 +33,7 @@ import { GENRES } from '../../config';
       <button class="btn btn-primary">Search</button>
     </form>
     @if (tmdb === false) {
-      <p class="text-muted text-xs mt-1">TMDB isn't configured on this server, so search covers the CineVault catalog only.</p>
+      <p class="text-muted text-xs mt-1">TMDB isn't configured on this server, so search covers the MoviQ catalog only.</p>
     }
 
     @if (searching) { <div class="loading-container"><div class="spinner"></div></div> }
@@ -48,7 +48,7 @@ import { GENRES } from '../../config';
                 @if (m._id) {
                   <button class="btn btn-secondary btn-sm grow" (click)="addToVault(m); $event.stopPropagation()">{{ vault.statusByMovie.has(m._id) ? '✓ In vault' : '+ Vault' }}</button>
                 } @else {
-                  <button class="btn btn-outline btn-sm grow" [disabled]="m.importing" (click)="importMovie(m); $event.stopPropagation()">{{ m.importing ? 'Adding…' : '+ Add to CineVault' }}</button>
+                  <button class="btn btn-outline btn-sm grow" [disabled]="m.importing" (click)="importMovie(m); $event.stopPropagation()">{{ m.importing ? 'Adding…' : '+ Add to MoviQ' }}</button>
                 }
               </div>
             }
@@ -58,7 +58,7 @@ import { GENRES } from '../../config';
     }
 
     @if (!results) {
-      <div class="section-head"><h2>Trending {{ trendingSource === 'tmdb' ? 'this week' : 'on CineVault' }}</h2></div>
+      <div class="section-head"><h2>Trending {{ trendingSource === 'tmdb' ? 'this week' : 'on MoviQ' }}</h2></div>
       @if (loadingTrending) { <div class="poster-row">@for (i of [1,2,3,4,5,6]; track i) { <div class="skeleton" style="aspect-ratio:2/3"></div> }</div> }
       <div class="poster-row">
         @for (m of trending; track m._id || m.tmdbId) {
@@ -273,7 +273,7 @@ export class DiscoverComponent implements OnInit {
     this.api.importMovie(m.tmdbId).subscribe({
       next: (movie: any) => {
         m._id = movie._id; m.importing = false;
-        this.toast.success(`${movie.title} added to CineVault`);
+        this.toast.success(`${movie.title} added to MoviQ`);
         if (open) this.router.navigate(['/movies', movie._id]);
       },
       error: e => { m.importing = false; this.toast.error(e); }

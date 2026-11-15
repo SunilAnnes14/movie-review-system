@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="MoviQ">
+  <title>MoviQ</title>
+  <defs>
+    <linearGradient id="mq-gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f3d58e"/>
+      <stop offset="0.5" stop-color="#d4a64a"/>
+      <stop offset="1" stop-color="#9c6f22"/>
+    </linearGradient>
+  </defs>
+  <!-- tile -->
+  <rect width="64" height="64" rx="16" fill="url(#mq-gold)"/>
+  <!-- Q bowl as a film reel -->
+  <circle cx="29" cy="29" r="15.5" fill="none" stroke="#1b1405" stroke-width="5.5"/>
+  <circle cx="29" cy="29" r="3.2" fill="#1b1405"/>
+  <circle cx="29" cy="21.2" r="2.6" fill="#1b1405"/>
+  <circle cx="36.8" cy="29" r="2.6" fill="#1b1405"/>
+  <circle cx="29" cy="36.8" r="2.6" fill="#1b1405"/>
+  <circle cx="21.2" cy="29" r="2.6" fill="#1b1405"/>
+  <!-- Q tail as a play button -->
+  <path d="M38.5 39.5 L53 46.2 Q54.6 47 53.2 48.1 L43.6 55.4 Q42.2 56.4 41.9 54.7 Z" fill="#1b1405"/>
+</svg>

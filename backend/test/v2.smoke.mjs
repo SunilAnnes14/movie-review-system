@@ -1,5 +1,5 @@
 /**
- * CineVault 2.0 end-to-end test: social graph, CineCircle, CineChat (real Socket.IO clients),
+ * MoviQ end-to-end test: social graph, CineCircle, CineChat (real Socket.IO clients),
  * CinePoll, CinePlan, CineFeed, privacy/access control and the six AI services.
  *
  * Usage: npm run test:v2   (server must be running; database seeded)
@@ -44,7 +44,7 @@ const T = {}, ID = {};
 const sockets = [];
 
 async function run() {
-  console.log(`\nCineVault 2.0 smoke test -> ${BASE}\n`);
+  console.log(`\nMoviQ smoke test -> ${BASE}\n`);
 
   console.log('Accounts & onboarding');
   for (const [k, u] of Object.entries(users)) {

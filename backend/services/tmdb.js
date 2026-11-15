@@ -106,7 +106,7 @@ async function details(tmdbId) {
   };
 }
 
-/** Import (or refresh) a TMDB movie into the CineVault catalog and return the Movie document. */
+/** Import (or refresh) a TMDB movie into the MoviQ catalog and return the Movie document. */
 async function importMovie(tmdbId, userId) {
   const existing = await Movie.findOne({ tmdbId: Number(tmdbId) });
   if (existing) return existing;

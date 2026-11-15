@@ -7,17 +7,9 @@
   background: linear-gradient(180deg, #0d0d10 0%, #09090b 100%);
   border-right: 1px solid var(--border-color);
   transition: transform var(--transition-normal);
+  overflow: hidden;
 }
-.brand { display: flex; align-items: center; gap: 12px; padding: 4px 8px 8px; }
-.brand-mark {
-  width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; flex-shrink: 0;
-  background: var(--accent-gradient); color: var(--on-accent); font-family: var(--font-display); font-weight: 700; letter-spacing: -0.04em;
-  box-shadow: 0 6px 20px rgba(212,166,74,0.25);
-}
-.brand-text { display: flex; flex-direction: column; min-width: 0; }
-.brand-name { font-family: var(--font-display); font-weight: 700; font-size: 1.25rem; line-height: 1.1; }
-.brand-tag { font-size: 0.64rem; color: var(--text-muted); letter-spacing: 0.04em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
+.brand { display: flex; align-items: center; gap: 12px; padding: 4px 8px 8px; min-width: 0; }
 .side-nav { display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto; }
 .side-nav a {
   display: flex; align-items: center; gap: 12px; padding: 9px 12px; border-radius: var(--radius-md);

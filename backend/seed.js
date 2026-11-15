@@ -186,7 +186,7 @@ const seedDB = async () => {
     });
     console.log('Watchlist entry created for john@example.com');
 
-    // CineVault 2.0 community (friends, circles, chat, polls, events, feed)
+    // MoviQ community (friends, circles, chat, polls, events, feed)
     await require('./seed-social')({ adminUser, testUser });
 
     console.log('\nSeed completed successfully!');

@@ -23,7 +23,7 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const BACKEND_DIR = path.join(here, '..');
 const PORT = 5050, ANTHROPIC_PORT = 5101, TMDB_PORT = 5102;
 const BASE = `http://127.0.0.1:${PORT}/api`;
-const DB_URI = 'mongodb://127.0.0.1:27017/cinevault_integration_test';
+const DB_URI = 'mongodb://127.0.0.1:27017/moviq_integration_test';
 
 let passed = 0, failed = 0;
 const failures = [];
@@ -190,7 +190,7 @@ async function startBackend() {
 
 // ------------------------------------------------------------------ test
 async function run() {
-  console.log('\nCineVault integration test (Anthropic + TMDB contract mocks)\n');
+  console.log('\nMoviQ integration test (Anthropic + TMDB contract mocks)\n');
   await listen(anthropic, ANTHROPIC_PORT);
   await listen(tmdb, TMDB_PORT);
   await startBackend();

@@ -30,7 +30,7 @@ async function call(method, p, { token, body } = {}) {
 }
 
 (async () => {
-  console.log(`\nCineVault LIVE service check -> ${BASE}\n`);
+  console.log(`\nMoviQ LIVE service check -> ${BASE}\n`);
   const login = await call('POST', '/auth/login', { body: { email: 'john@example.com', password: 'password123' } });
   const T = login.body?.token;
   if (!T) { console.log('Cannot sign in as john@example.com - is the backend running and seeded?'); process.exitCode = 1; return; }

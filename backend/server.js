@@ -52,7 +52,7 @@ app.use('/api/reviews', require('./routes/reviewRoutes'));
 app.use('/api/watchlist', require('./routes/watchlistRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 
-// CineVault 2.0
+// MoviQ
 app.use('/api/tmdb', require('./routes/tmdbRoutes'));
 app.use('/api/collections', require('./routes/collectionRoutes'));
 app.use('/api/social', writeLimiter, require('./routes/socialRoutes'));
@@ -70,7 +70,7 @@ app.use('/uploads', uploads.serve);
 
 // Health check
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'CineVault API is running' });
+  res.json({ status: 'OK', message: 'MoviQ API is running' });
 });
 
 // 404 handler

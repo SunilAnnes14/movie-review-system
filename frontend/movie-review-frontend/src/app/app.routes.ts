@@ -18,7 +18,7 @@ export const routes: Routes = [
   { path: 'admin/add-movie', loadComponent: page(() => import('./pages/add-movie/add-movie.component'), 'AddMovieComponent'), canActivate: [adminGuard] },
   { path: 'admin/edit-movie/:id', loadComponent: page(() => import('./pages/edit-movie/edit-movie.component'), 'EditMovieComponent'), canActivate: [adminGuard] },
 
-  // ----- CineVault 2.0
+  // ----- MoviQ
   { path: 'welcome', loadComponent: page(() => import('./pages/onboarding/onboarding.component'), 'OnboardingComponent'), canActivate: [authGuard] },
   { path: 'discover', loadComponent: page(() => import('./pages/discover/discover.component'), 'DiscoverComponent') },
   { path: 'vault', loadComponent: page(() => import('./pages/vault/vault.component'), 'VaultComponent'), canActivate: [authGuard] },

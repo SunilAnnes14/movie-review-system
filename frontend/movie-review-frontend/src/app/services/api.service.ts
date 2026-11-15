@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { API_URL } from '../config';
 
 /**
- * Typed-enough client for the CineVault 2.0 endpoints
+ * Typed-enough client for the MoviQ endpoints
  * (social graph, collections, circles, chat, polls, events, feed, discovery, notifications, TMDB, AI).
  */
 @Injectable({ providedIn: 'root' })

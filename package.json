@@ -1,7 +1,7 @@
 {
-  "name": "cinevault-movie-review-system",
+  "name": "moviq",
   "version": "1.0.0",
-  "description": "CineVault 2.0 - AI-powered social movie platform",
+  "description": "MoviQ - AI-powered social movie platform",
   "scripts": {
     "start": "node backend/server.js",
     "backend": "cd backend && npm run dev",

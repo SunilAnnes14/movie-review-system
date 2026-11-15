@@ -1,5 +1,5 @@
 /**
- * CineVault 2.0 demo community. Called by seed.js after the base catalog is created.
+ * MoviQ demo community. Called by seed.js after the base catalog is created.
  * Everything here is stored as ordinary database records and flows through the same
  * models the API uses - nothing in the UI is hardcoded.
  */
@@ -197,7 +197,7 @@ async function seedSocial({ adminUser, testUser }) {
     { user: testUser._id, actor: priya._id, type: 'event_created', title: 'Nolan Marathon Night 1: The Prestige', body: 'Priya planned a movie night in Nolan Nerds. RSVP now!', link: `/events/${upcoming._id}` }
   ]);
 
-  console.log(`CineVault 2.0 community seeded: ${EXTRA_MOVIES.length} extra movies, 4 more users, 2 circles, polls, events, chats and posts`);
+  console.log(`MoviQ community seeded: ${EXTRA_MOVIES.length} extra movies, 4 more users, 2 circles, polls, events, chats and posts`);
   console.log('Extra users (password123): priya@example.com, marcus@example.com, lena@example.com, sam@example.com');
 }
 

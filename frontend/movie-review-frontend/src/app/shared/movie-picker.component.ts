@@ -6,7 +6,7 @@ import { ApiService } from '../services/api.service';
 import { ToastService } from '../services/toast.service';
 
 /**
- * Search the CineVault catalog (and TMDB when configured) and pick a movie.
+ * Search the MoviQ catalog (and TMDB when configured) and pick a movie.
  * TMDB results are imported into the catalog on selection so every pick is a real Movie record.
  */
 @Component({

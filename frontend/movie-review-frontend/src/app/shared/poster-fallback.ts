@@ -1,7 +1,7 @@
 /**
  * Inline SVG poster for movies without artwork (no network request, matches the gold theme).
  */
-export function posterFallback(title = 'CineVault'): string {
+export function posterFallback(title = 'MoviQ'): string {
   const esc = (s: string) => s.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
   const words = esc(title).split(/\s+/);
   const lines: string[] = [];

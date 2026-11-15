@@ -86,7 +86,7 @@ async function circleRecommendations(user, circleName) {
 const TOOLS = [
   {
     name: 'search_catalog',
-    description: 'Search the CineVault movie catalog. Use for any question about specific movies, genres, directors, actors or themes (e.g. keyword "twist").',
+    description: 'Search the MoviQ movie catalog. Use for any question about specific movies, genres, directors, actors or themes (e.g. keyword "twist").',
     input_schema: {
       type: 'object',
       properties: {
@@ -159,7 +159,7 @@ async function runTool(name, input, ctx) {
 
 function systemPrompt(user, spoilerFree) {
   return [
-    'You are CineBot, the movie assistant inside CineVault, a social movie platform.',
+    'You are CineBot, the movie assistant inside MoviQ, a social movie platform.',
     'Ground every factual claim about a specific movie in tool results. If the tools return nothing, say you could not find it rather than guessing. Never invent movies, cast, dates or plot details.',
     'Prefer recommending movies that exist in the catalog (search_catalog / recommend_for_me) so the user can open them; use search_tmdb for titles missing from the catalog.',
     spoilerFree
@@ -235,7 +235,7 @@ async function chatLocal(user, message, spoilerFree) {
   if (like && !/\bi (?:like|liked)\b/.test(lower.slice(0, like.index + 6))) {
     const title = text.slice(like.index).replace(/^.*?(?:like|similar to)\s+/i, '').replace(/["'?.!]/g, '').trim();
     const seed = await findMovieByTitle(title);
-    if (!seed) return { reply: `I couldn't find "${title}" in CineVault${tmdb.isConfigured() ? ' or TMDB' : ''}. Try the exact title?`, movies: [], followUps: ['Show trending movies', 'Recommend something for me'] };
+    if (!seed) return { reply: `I couldn't find "${title}" in MoviQ${tmdb.isConfigured() ? ' or TMDB' : ''}. Try the exact title?`, movies: [], followUps: ['Show trending movies', 'Recommend something for me'] };
     let items;
     if (seed._id) items = (await cinematch.similarMovies(seed._id, 6)).map(s => s.movie);
     else items = await searchCatalog({ genre: seed.genre?.[0], limit: 6 });
@@ -276,7 +276,7 @@ async function chatLocal(user, message, spoilerFree) {
     const items = await searchCatalog({ language: code, genre: genre || undefined, limit: 8 });
     const fallback = items.length ? items : await searchCatalog({ language: code, limit: 8 });
     return fallback.length
-      ? { reply: `${name} ${genre && items.length ? genre.toLowerCase() + ' ' : ''}movies in CineVault:
+      ? { reply: `${name} ${genre && items.length ? genre.toLowerCase() + ' ' : ''}movies in MoviQ:
 
 ${listMovies(fallback)}`, movies: fallback, followUps: [`Movies like ${fallback[0].title}`, 'Recommend something for me'] }
       : { reply: `There are no ${name} movies in the catalog yet.`, movies: [], followUps: [] };
@@ -300,7 +300,7 @@ ${listMovies(fallback)}`, movies: fallback, followUps: [`Movies like ${fallback[
     const name = dir[1].replace(/\b(recommend|suggest|show|find|list|me|some|the|best|good|any|all|top|great)\b/g, '').replace(/\s+/g, ' ').trim();
     if (name.length > 3 && !detectGenre(name)) {
       const byDirector = await searchCatalog({ director: name, limit: 8 });
-      if (byDirector.length) return { reply: `Movies directed by **${byDirector[0].director}** in CineVault:\n\n${listMovies(byDirector)}`, movies: byDirector, followUps: [`Movies like ${byDirector[0].title}`] };
+      if (byDirector.length) return { reply: `Movies directed by **${byDirector[0].director}** in MoviQ:\n\n${listMovies(byDirector)}`, movies: byDirector, followUps: [`Movies like ${byDirector[0].title}`] };
       const byActor = await searchCatalog({ actor: name, limit: 8 });
       if (byActor.length) return { reply: `Movies featuring **${name}**:\n\n${listMovies(byActor)}`, movies: byActor, followUps: [] };
     }
@@ -334,7 +334,7 @@ ${listMovies(fallback)}`, movies: fallback, followUps: [`Movies like ${fallback[
 
   // plain title search
   const found = await searchCatalog({ query: text.replace(/[?!.]/g, ''), limit: 5 });
-  if (found.length) return { reply: `Here's what I found in CineVault:\n\n${listMovies(found)}`, movies: found, followUps: [`Movies like ${found[0].title}`] };
+  if (found.length) return { reply: `Here's what I found in MoviQ:\n\n${listMovies(found)}`, movies: found, followUps: [`Movies like ${found[0].title}`] };
 
   return {
     reply: 'I can recommend movies like a title you love, suggest picks for your mood or CineCircle, list a director\'s films or find movies with twists. What would you like?',

@@ -210,7 +210,7 @@ type Tool = 'match' | 'dna' | 'review' | 'spoiler' | 'bot' | 'pulse';
             }
           } @else { <p class="text-muted text-sm">Run a scan to see sentence-level results.</p> }
           <div class="info-box mt-2">
-            <label class="switch"><input type="checkbox" [ngModel]="auth.currentUser?.privacy?.spoilerShield !== false" (ngModelChange)="setShield($event)" /> Spoiler shield — hide flagged content across CineVault</label>
+            <label class="switch"><input type="checkbox" [ngModel]="auth.currentUser?.privacy?.spoilerShield !== false" (ngModelChange)="setShield($event)" /> Spoiler shield — hide flagged content across MoviQ</label>
             <p class="text-xs mt-1">Movies you've marked <strong>Watched</strong> are never hidden from you.</p>
           </div>
         </div>

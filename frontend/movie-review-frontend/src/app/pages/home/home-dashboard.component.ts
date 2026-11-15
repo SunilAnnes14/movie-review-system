@@ -8,7 +8,7 @@ import { ReviewService } from '../../services/review.service';
 import { PosterTileComponent } from '../../shared/poster-tile.component';
 import { EventDatePipe, TimeAgoPipe } from '../../shared/pipes';
 
-/** Signed-in home: the CineVault journey, today's picks and what's coming up. */
+/** Signed-in home: the MoviQ journey, today's picks and what's coming up. */
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
   selector: 'app-home-dashboard',
@@ -30,7 +30,7 @@ import { EventDatePipe, TimeAgoPipe } from '../../shared/pipes';
 
     @if (stepsDone < steps.length) {
       <div class="panel journey mt-3">
-        <div class="row between"><h3 style="margin:0">Your CineVault journey</h3><span class="text-xs text-muted">{{ stepsDone }}/{{ steps.length }} complete</span></div>
+        <div class="row between"><h3 style="margin:0">Your MoviQ journey</h3><span class="text-xs text-muted">{{ stepsDone }}/{{ steps.length }} complete</span></div>
         <div class="bar mt-1"><span [style.width.%]="stepsDone / steps.length * 100"></span></div>
         <div class="steps mt-2">
           @for (s of steps; track s.label) {

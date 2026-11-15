@@ -1,10 +1,14 @@
-# CineVault 2.0 — Where Movies Bring People Together
+<p align="center"><img src="docs/moviq-logo.svg" width="96" alt="MoviQ logo"></p>
 
-CineVault is an AI-powered social movie platform. You can keep a personal film vault, rate and review movies, add friends, run movie communities (CineCircles) with real-time group chat, vote on what to watch, plan movie nights, and get recommendations from six AI services that work from your actual viewing data.
+# MoviQ — Where Movies Bring People Together
 
-Version 2.0 builds on the original CineVault movie review app. Every 1.0 feature still works on the same routes and API: catalog browsing, search, movie details, ratings, reviews, the watchlist, profiles and the admin dashboard.
+MoviQ is an AI-powered social movie platform. You can keep a personal film vault, rate and review movies, add friends, run movie communities (CineCircles) with real-time group chat, vote on what to watch, plan movie nights, and get recommendations from six AI services that work from your actual viewing data.
+
+MoviQ (formerly **CineVault**) builds on the original CineVault 1.0 movie review app. Every 1.0 feature still works on the same routes and API: catalog browsing, search, movie details, ratings, reviews, the watchlist, profiles and the admin dashboard.
 
 ![Home](docs/screenshots/home.png)
+
+**Logo:** a "Q" drawn as a film reel with a play-button tail ([docs/moviq-logo.svg](docs/moviq-logo.svg)). The same artwork is used for the favicon (`public/favicon.svg`, `favicon.ico`, `apple-touch-icon.png`) and the in-app `<mq-logo>` component.
 
 ---
 
@@ -155,7 +159,7 @@ npm install
 npm start                     # http://localhost:4200
 ```
 
-The frontend calls `http://localhost:5000/api` by default. To use a different backend, set `window.CINEVAULT_API` before the app boots (see `src/app/config.ts`).
+The frontend calls `http://localhost:5000/api` by default. To use a different backend, set `window.MOVIQ_API` before the app boots (see `src/app/config.ts`).
 
 ---
 
@@ -180,7 +184,7 @@ All settings live in `backend/.env`; `backend/.env.example` documents every one.
 
 For tests, `TMDB_BASE_URL` and `ANTHROPIC_BASE_URL` can point the backend at mock servers (see `test/integration.mock.mjs`).
 
-**Without TMDB:** search covers the local catalog, Trending is calculated from activity on CineVault, and the UI explains that TMDB isn't configured.
+**Without TMDB:** search covers the local catalog, Trending is calculated from activity on MoviQ, and the UI explains that TMDB isn't configured.
 **Without an Anthropic key:** every AI feature still works with its local model. Only review *style rewrites* need the LLM, and that endpoint returns a clear `503` with setup instructions.
 
 ---

@@ -14,7 +14,7 @@ export class ToastService {
   }
   success(title: string, body?: string) { this.show(title, { body, type: 'success' }); }
   error(err: any, fallback = 'Something went wrong') {
-    const msg = typeof err === 'string' ? err : err?.error?.message || (err?.status === 0 ? 'Cannot reach the CineVault server' : fallback);
+    const msg = typeof err === 'string' ? err : err?.error?.message || (err?.status === 0 ? 'Cannot reach the MoviQ server' : fallback);
     this.show(msg, { type: 'error', ms: 6000 });
   }
   dismiss(id: number): void { this.toasts = this.toasts.filter(t => t.id !== id); }

@@ -1,5 +1,6 @@
-// Backend locations. Override at runtime by setting window.CINEVAULT_API before the app boots.
-const runtime = (globalThis as any).CINEVAULT_API as string | undefined;
+// Backend locations. Override at runtime by setting window.MOVIQ_API before the app boots
+// (the pre-rename name window.CINEVAULT_API is still honoured).
+const runtime = ((globalThis as any).MOVIQ_API ?? (globalThis as any).CINEVAULT_API) as string | undefined;
 
 export const API_URL = runtime || 'http://localhost:5000/api';
 export const SOCKET_URL = API_URL.replace(/\/api\/?$/, '');

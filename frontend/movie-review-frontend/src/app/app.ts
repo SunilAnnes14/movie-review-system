@@ -11,12 +11,13 @@ import { WatchlistService } from './services/watchlist.service';
 import { IconComponent } from './shared/icon.component';
 import { AvatarComponent } from './shared/avatar.component';
 import { TimeAgoPipe } from './shared/pipes';
+import { LogoComponent } from './shared/logo.component';
 
 interface NavItem { path: string; label: string; icon: string; auth?: boolean; exact?: boolean; badge?: () => number; }
 
 @Component({
   changeDetection: ChangeDetectionStrategy.Default,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, FormsModule, IconComponent, AvatarComponent, TimeAgoPipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, CommonModule, FormsModule, IconComponent, AvatarComponent, TimeAgoPipe, LogoComponent],
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',

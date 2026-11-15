@@ -53,8 +53,8 @@ async function startBundledMongo(uri, parsed) {
   const dbPath = process.env.MONGO_DATA_DIR || path.join(__dirname, '..', '.mongo-data');
   fs.mkdirSync(dbPath, { recursive: true });
 
-  console.log(yellow('[CineVault DB] MongoDB is not reachable on this machine.'));
-  console.log(cyan('[CineVault DB] Starting a local MongoDB server (first run downloads the mongod binary)...'));
+  console.log(yellow('[MoviQ DB] MongoDB is not reachable on this machine.'));
+  console.log(cyan('[MoviQ DB] Starting a local MongoDB server (first run downloads the mongod binary)...'));
 
   bundledMongo = await MongoMemoryServer.create({
     instance: {
@@ -69,7 +69,7 @@ async function startBundledMongo(uri, parsed) {
   await mongoose.connect(localUri, { serverSelectionTimeoutMS: 5000 });
 
   console.log(green(`✔ MongoDB Connected: 127.0.0.1:${parsed.port}/${parsed.dbName} (managed local mongod)`));
-  console.log(cyan(`[CineVault DB] Data directory: ${dbPath}`));
+  console.log(cyan(`[MoviQ DB] Data directory: ${dbPath}`));
   return mongoose.connection;
 }
 
@@ -96,7 +96,7 @@ const connectDB = async () => {
       );
     }
 
-    console.warn(yellow(`[CineVault DB] ${maskUri(uri)} is not reachable (${error.message}).`));
+    console.warn(yellow(`[MoviQ DB] ${maskUri(uri)} is not reachable (${error.message}).`));
     return await startBundledMongo(uri, parsed);
   }
 };
@@ -121,8 +121,8 @@ const disconnectDB = async () => {
 
 // Make sure the managed mongod is stopped with the process (seed/server/nodemon)
 const registerShutdownHooks = () => {
-  if (process.__cinevaultDbHooks) return;
-  process.__cinevaultDbHooks = true;
+  if (process.__moviqDbHooks) return;
+  process.__moviqDbHooks = true;
 
   const shutdown = async () => {
     await disconnectDB();

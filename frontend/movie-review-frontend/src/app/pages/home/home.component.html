@@ -5,7 +5,7 @@
 @if (loading) {
   <div class="loading-container">
     <div class="spinner"></div>
-    <p class="loading-text">Loading CineVault...</p>
+    <p class="loading-text">Loading MoviQ...</p>
   </div>
 } @else {
   <!-- HERO SECTION -->
@@ -15,7 +15,7 @@
       <div class="hero-overlay"></div>
       <div class="hero-content container">
         <div class="hero-info">
-          <span class="hero-badge">⭐ {{ auth.isLoggedIn ? 'Featured Film' : 'CineVault · Where movies bring people together' }}</span>
+          <span class="hero-badge">⭐ {{ auth.isLoggedIn ? 'Featured Film' : 'MoviQ · Where movies bring people together' }}</span>
           <h1 class="hero-title">{{ featuredMovie.title }}</h1>
           <div class="hero-meta">
             <span class="hero-year">{{ featuredMovie.releaseYear }}</span>

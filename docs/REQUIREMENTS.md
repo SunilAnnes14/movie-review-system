@@ -1,6 +1,6 @@
-# CineVault 2.0 — Requirements Traceability
+# MoviQ — Requirements Traceability
 
-This maps every requirement in the CineVault 2.0 brief to where it is implemented and how it was verified.
+This maps every requirement in the MoviQ brief to where it is implemented and how it was verified.
 
 **Verification sources**
 - **API** — `backend/test/api.smoke.mjs` (1.0 regression, 51 checks) and `backend/test/v2.smoke.mjs` (2.0 end-to-end, 116 checks, including real Socket.IO clients).
@@ -69,4 +69,4 @@ Final run (2026-11-15): **51/51 + 116/116 API checks + 36/36 integration checks 
 - **Python was optional and not chosen.** The brief says *"If using Python: FastAPI… Scikit-learn…"*, so it is conditional. The AI services are Node modules inside the existing Express backend, which keeps one runtime and one deployment. The required capabilities (content-based and collaborative filtering, NLP classification, analytics, an LLM assistant) are all implemented and tested.
 - **Some listed collections are embedded instead of separate:** `poll_options` (inside `polls`), `event_attendees` (inside `movieevents`), `likes` (inside `posts`), `user_preferences` (inside `users`), `user_movies` (= `watchlists`). Votes are a separate collection so uniqueness is enforced by the database.
 - **Posters:** movies added without TMDB have no artwork, so the app draws a typographic poster. Two original seed poster links (The Godfather, The Matrix) were dead and were cleared.
-- **External ratings were not copied.** The new IMDb-top and Tamil titles start with no CineVault rating; IMDb's scores are not CineVault ratings.
+- **External ratings were not copied.** The new IMDb-top and Tamil titles start with no MoviQ rating; IMDb's scores are not MoviQ ratings.
