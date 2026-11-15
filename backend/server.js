@@ -30,6 +30,10 @@ app.use(cors({
   },
   credentials: true
 }));
+// Behind a hosting proxy (Render, Railway...), trust the forwarded client IP and protocol so
+// rate limiting is per real client and generated URLs (e.g. uploads) use https.
+if (process.env.TRUST_PROXY) app.set('trust proxy', Number(process.env.TRUST_PROXY) || 1);
+
 app.use(helmet());
 app.use(express.json({ limit: '200kb' }));
 app.use(express.urlencoded({ extended: true, limit: '200kb' }));

@@ -17,7 +17,7 @@ MoviQ (formerly **CineVault**) builds on the original CineVault 1.0 movie review
 2. [Architecture](#architecture)
 3. [Technology stack](#technology-stack)
 4. [Installation](#installation)
-5. [Environment variables](#environment-variables)
+5. [Deployment](#deployment) · [Environment variables](#environment-variables)
 6. [Demo accounts](#demo-accounts)
 7. [API documentation](#api-documentation)
 8. [Database structure](#database-structure)
@@ -160,6 +160,12 @@ npm start                     # http://localhost:4200
 ```
 
 The frontend calls `http://localhost:5000/api` by default. To use a different backend, set `window.MOVIQ_API` before the app boots (see `src/app/config.ts`).
+
+---
+
+## Deployment
+
+Production runs as **Vercel** (frontend) + **Render** (backend, from `render.yaml`) + **MongoDB Atlas** (database). The backend can't run on Vercel's serverless platform because it needs live Socket.IO connections, a background scheduler and file uploads. The step-by-step guide is in **[docs/DEPLOY.md](docs/DEPLOY.md)**.
 
 ---
 
